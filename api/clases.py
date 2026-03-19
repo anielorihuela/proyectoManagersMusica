@@ -11,9 +11,9 @@ class VenueRes(BaseModel):
 class ConciertoRes(BaseModel):
     id: UUID
     fecha: str
-    venue_id: UUID 
+    venue_id: UUID #un concierto tiene un venue
     costoBoleto: int
-    estado: str
+    estado: str #los estados son "programado | realizado | cancelado"
 
 class CancionRes(BaseModel):
     id: UUID
@@ -24,7 +24,7 @@ class AlbumRes(BaseModel):
     id: UUID
     nombreAlbum: str
     generoAlbum: str
-    canciones_ids: list[UUID]  
+    canciones_ids: list[UUID]   #un albúm puede tener varias canciones
     
 class ArtistaRes(BaseModel):
     id: UUID
@@ -32,8 +32,8 @@ class ArtistaRes(BaseModel):
     generoArtista: str
     popularidad: int
     seguidores: int
-    conciertos_ids: list[UUID] 
-    albumes_ids: list[UUID] 
+    conciertos_ids: list[UUID] #un artista puede tener varias conciertos
+    albumes_ids: list[UUID] #un albúm puede tener varios albumes
 
 
 #Clases que tienen los datos que llena el usuario

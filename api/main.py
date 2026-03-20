@@ -185,6 +185,8 @@ async def patch_concierto(id_concierto:UUID, cambio:ConciertoCambios):
         concierto["fecha"] = cambio.fecha
     if cambio.venue_id is not None:
         concierto["venue_id"] = cambio.venue_id
+    if cambio.estado is not None:
+        concierto["estado"] = cambio.estado
     
     return concierto
 
@@ -204,4 +206,17 @@ async def patch_venue(id_venue:UUID, cambio: VenueCambios):
     
     return venue
 
+#PUT
+@app.put("/v1/concierto/{id_concierto}",
+         response_model=ConciertoRes)
+async def put_concierto(id_concierto:UUID, cambio:ConciertoPut):
+    if id_concierto not in conciertos:
+        raise HTTPException(status_code=404, detail="Concierto no encontrado")
+    concierto = conciertos[id_concierto]
+    concierto["fecha"] = cambio.fecha
+    concierto["venue_id"] = cambio.venue_id
+    concierto["costoBoleto"] = cambio.costoBoleto
+    concierto["estado"] = cambio.estado
+    
+    return concierto
 

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas — Managers Música</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        .btn-outline-light { border-radius: 10px; border-color: white; }
+        .card {
+            border-radius: 16px; border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,1); background-color: #c98c8c; }
+        .btn-outline-dark { border-radius: 10px; }
+
+        body {
+            background-color: #f8f9fa;
+            color: #212529;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .chart-wrapper {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            transition: background-color 0.3s;
+        }
+
+        /* Dark mode */
+        body.dark-mode { background-color: #1a1a2e; color: #e8e8e8; }
+        body.dark-mode .chart-wrapper { background-color: #16213e; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        body.dark-mode .card { background-color: #16213e; color: #e8e8e8; }
+        body.dark-mode .text-muted { color: #a0a0b8 !important; }
+        body.dark-mode .stat-label { color: #a0a0b8; }
+        body.dark-mode .artist-chip { background: #2a2a4a; border-color: #4a4a7a; color: #e8e8e8; }
+        body.dark-mode .artist-chip:hover { border-color: #c98c8c; }
+        body.dark-mode .artist-chip.selected { background: #c98c8c; border-color: #c98c8c; color: #fff; }
+        body.dark-mode .selector-panel { background: #16213e; border-color: #2a2a4a; }
+        body.dark-mode .empty-state { color: #a0a0b8; }
+
+        /* KPIs */
+        .kpi-icon { font-size: 2rem; margin-bottom: .5rem; }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; line-height: 1; }
+        .stat-label { font-size: .85rem; color: #6c757d; margin-top: .2rem; }
+
+        /* Selector de artistas */
+        .selector-panel {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .selector-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            min-height: 42px;
+            align-items: center;
+        }
+        .artist-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            padding: .35rem .85rem;
+            border-radius: 50px;
+            border: 1.5px solid #dee2e6;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: .84rem;
+            font-weight: 500;
+            transition: all .15s;
+            user-select: none;
+        }
+        .artist-chip:hover { border-color: #c98c8c; }
+        .artist-chip.selected {
+            background: #c98c8c;
+            border-color: #c98c8c;
+            color: #fff;
+        }
+        .chip-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .btn-select-all, .btn-clear {
+            font-size: .8rem;
+            padding: .25rem .7rem;
+            border-radius: 50px;
+        }
+        .empty-state {
+            color: #adb5bd;
+            font-size: .85rem;
+            font-style: italic;
+        }
+
+        .chip-skeleton {
+            display: inline-block;
+            width: 90px; height: 34px;
+            border-radius: 50px;
+            background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+        }
+        body.dark-mode .chip-skeleton {
+            background: linear-gradient(90deg, #2a2a4a 25%, #3a3a5a 50%, #2a2a4a 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* Gráficas */
+        .chart-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+
+        /* Calendario */
+        .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+        .cal-header { text-align:center; font-size:.72rem; font-weight:600; color:#6c757d; padding:.3rem 0; }
+        .cal-day {
+            aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+            border-radius:8px; font-size:.82rem; cursor:pointer;
+            transition:background .15s; position:relative;
+        }
+        .cal-day:hover { background: rgba(201,140,140,0.2); }
+        .cal-day.empty { pointer-events:none; }
+        .cal-day.today { background:#c98c8c; color:#fff; font-weight:700; }
+        .cal-day.has-event::after {
+            content:''; position:absolute; bottom:2px; left:50%; transform:translateX(-50%);
+            width:5px; height:5px; border-radius:50%; background:#6c3d3d;
+        }
+        .cal-day.has-event.today::after { background:#fff; }
+        .cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+        .cal-nav button {
+            background:#c98c8c; border:none; color:#fff; border-radius:8px;
+            padding:.25rem .6rem; cursor:pointer; font-size:.85rem;
+        }
+        .cal-nav button:hover { background:#b07070; }
+        .event-item { display:flex; align-items:center; gap:.8rem; padding:.6rem 0; border-bottom:1px solid rgba(0,0,0,0.07); font-size:.85rem; }
+        .event-item:last-child { border-bottom:none; }
+        body.dark-mode .event-item { border-color: rgba(255,255,255,0.08); }
+        .event-badge { background:#c98c8c; color:#fff; border-radius:8px; min-width:42px; text-align:center; padding:.3rem .4rem; font-size:.68rem; font-weight:700; line-height:1.3; }
+
+        /* Mapa */
+        #tourMap { height:320px; border-radius:12px; overflow:hidden; }
+
+        /* API error banner */
+        .api-banner {
+            font-size: .82rem;
+            border-radius: 10px;
+            padding: .6rem 1rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">Managers música</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuNavegacion">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="artistas.html">Artistas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="estadisticas.html">Estadísticas</a></li>
+                </ul>
+                <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 mb-5">
+
+        <div class="text-center mb-5">
+            <h1 class="mt-3 mb-3">Estadísticas</h1>
+            <p class="text-muted">Selecciona los artistas que quieres comparar</p>
+        </div>
+
+        <!-- Banner de error de API -->
+        <div class="alert alert-warning api-banner" id="apiBanner">
+            No se pudo conectar con la API. Se muestran datos de ejemplo. Asegúrate de que el servidor esté corriendo en <code>localhost:8000</code>.
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="kpi-icon">🎤</div>
+                        <div class="kpi-value" id="kpiArtistas">—</div>
+                        <div class="stat-label">Artistas registrados</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="kpi-icon">🎫</div>
+                        <div class="kpi-value" id="kpiConciertos">—</div>
+                        <div class="stat-label">Conciertos programados</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="kpi-icon">💿</div>
+                        <div class="kpi-value" id="kpiAlbumes">—</div>
+                        <div class="stat-label">Álbumes registrados</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="kpi-icon">🎵</div>
+                        <div class="kpi-value" id="kpiCanciones">—</div>
+                        <div class="stat-label">Canciones registradas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SELECTOR DE ARTISTAS -->
+        <div class="selector-panel">
+            <div class="selector-header">
+                <div>
+                    <h6 class="fw-semibold mb-0">🎤 Selecciona artistas para comparar</h6>
+                    <small class="text-muted">Las gráficas se actualizan con tu selección</small>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary btn-select-all" onclick="seleccionarTodos()">Seleccionar todos</button>
+                    <button class="btn btn-sm btn-outline-danger btn-clear" onclick="limpiarSeleccion()">Limpiar</button>
+                </div>
+            </div>
+            <div class="chips-container" id="chipsContainer">
+                <span class="chip-skeleton"></span>
+                <span class="chip-skeleton" style="width:110px"></span>
+                <span class="chip-skeleton" style="width:75px"></span>
+                <span class="chip-skeleton" style="width:95px"></span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-8">
+                <div class="chart-wrapper h-100">
+                    <div class="chart-title-row">
+                        <h6 class="fw-semibold mb-0">Popularidad comparada</h6>
+                        <small class="text-muted" id="barSubtitle">— artistas seleccionados</small>
+                    </div>
+                    <canvas id="barChart"></canvas>
+                    <div class="empty-state text-center py-4" id="barEmpty" style="display:none">
+                        Selecciona al menos un artista para ver la gráfica
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="chart-wrapper h-100">
+                    <h6 class="fw-semibold mb-3">Seguidores comparados</h6>
+                    <canvas id="donutChart"></canvas>
+                    <div class="empty-state text-center py-4" id="donutEmpty" style="display:none">
+                        Selecciona artistas para ver la distribución
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LÍNEA + CALENDARIO -->
+        <div class="row g-4 mb-4">
+            <div class="col-12 col-md-7">
+                <div class="chart-wrapper h-100">
+                    <div class="chart-title-row">
+                        <h6 class="fw-semibold mb-0">Popularidad — Últimos 6 meses</h6>
+                        <small class="text-muted">Datos simulados por artista</small>
+                    </div>
+                    <canvas id="lineChart"></canvas>
+                    <div class="empty-state text-center py-4" id="lineEmpty" style="display:none">
+                        Selecciona artistas para ver la evolución
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-5">
+                <div class="chart-wrapper h-100">
+                    <h6 class="fw-semibold mb-1">Calendario de Gira</h6>
+                    <div class="cal-nav mt-2">
+                        <button onclick="prevMonth()">&#8249;</button>
+                        <span id="calMonthName" class="fw-semibold" style="font-size:.9rem"></span>
+                        <button onclick="nextMonth()">&#8250;</button>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                    <div id="calEventList" style="margin-top:.8rem; max-height:110px; overflow-y:auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAPA -->
+        <div class="chart-wrapper mb-4">
+            <h6 class="fw-semibold mb-3">Mapa de Venues</h6>
+            <div id="tourMap"></div>
+        </div>
+
+    </div>
+
+    <script>
+    /* CONFIGURACIÓN */
+    const API = 'http://localhost:8000';
+
+    // Colores asignados dinámicamente a cada artista
+    const PALETTE = ['#c98c8c','#8c9ec9','#8cc9a0','#c9b98c','#c98cb8','#9ec98c','#8cc9c9','#c9c98c'];
+
+    /* DARK MODE */
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(dark) {
+        document.body.classList.toggle('dark-mode', dark);
+        themeToggle.textContent = dark ? 'Light mode' : 'Dark mode';
+        redrawCharts();
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        applyTheme(!isDark);
+    });
+
+    window.addEventListener('load', () => {
+        applyTheme(localStorage.getItem('theme') === 'dark');
+        cargarDatos();
+        buildCalendar();
+        initMap();
+    });
+
+    /* ESTADO GLOBAL */
+    let todosLosArtistas = [];   // array de objetos ArtistaRes de la API
+    let artistasSeleccionados = new Set(); // IDs seleccionados
+
+    /* FETCH A LA API */
+    async function cargarDatos() {
+        try {
+            // Cargar cache de localStorage si existe
+            const cached = localStorage.getItem('artistas_cache');
+            if (cached) {
+                todosLosArtistas = JSON.parse(cached);
+                renderChips();
+                seleccionarTodos();
+            }
+
+            // Fetch a la API
+            const [artistas, conciertos, albumes, canciones] = await Promise.all([
+                fetch(`${API}/v1/artistas`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
+                fetch(`${API}/v1/conciertos`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
+                fetch(`${API}/v1/albumes`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
+                fetch(`${API}/v1/canciones`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
+            ]);
+
+            // Actualizar KPIs
+            document.getElementById('kpiArtistas').textContent   = artistas.length;
+            document.getElementById('kpiConciertos').textContent = conciertos.filter(c => c.estado === 'programado').length;
+            document.getElementById('kpiAlbumes').textContent    = albumes.length;
+            document.getElementById('kpiCanciones').textContent  = canciones.length;
+
+            // Guardar en localStorage
+            localStorage.setItem('artistas_cache', JSON.stringify(artistas));
+            const kpis = { artistas: artistas.length, conciertos: conciertos.filter(c=>c.estado==='programado').length, albumes: albumes.length, canciones: canciones.length };
+            localStorage.setItem('kpi_data', JSON.stringify(kpis));
+
+            // Renderizar chips con datos reales
+            todosLosArtistas = artistas;
+            renderChips();
+            seleccionarTodos();
+
+        } catch (err) {
+            console.warn('API no disponible:', err);
+            document.getElementById('apiBanner').style.display = 'block';
+
+            // Datos de ejemplo si la API no responde
+            todosLosArtistas = [
+                { id:'1', nombreArtista:'Luna Roja',    generoArtista:'Rock',        popularidad:85, seguidores:124000 },
+                { id:'2', nombreArtista:'Los Pájaros',  generoArtista:'Pop',         popularidad:76, seguidores:98000  },
+                { id:'3', nombreArtista:'DJ Neon',      generoArtista:'Electrónica', popularidad:65, seguidores:75000  },
+                { id:'4', nombreArtista:'Banda Norte',  generoArtista:'Regional',    popularidad:54, seguidores:60000  },
+                { id:'5', nombreArtista:'Sin Fronteras',generoArtista:'Pop',         popularidad:70, seguidores:88000  },
+            ];
+            document.getElementById('kpiArtistas').textContent   = todosLosArtistas.length;
+            document.getElementById('kpiConciertos').textContent = '—';
+            document.getElementById('kpiAlbumes').textContent    = '—';
+            document.getElementById('kpiCanciones').textContent  = '—';
+            renderChips();
+            seleccionarTodos();
+        }
+    }
+
+    /* CHIPS DE ARTISTAS */
+    function colorDeArtista(index) {
+        return PALETTE[index % PALETTE.length];
+    }
+
+    function renderChips() {
+        const container = document.getElementById('chipsContainer');
+        if (!todosLosArtistas.length) {
+            container.innerHTML = '<span class="empty-state">No hay artistas registrados aún. Agrega artistas desde la sección Artistas.</span>';
+            return;
+        }
+        container.innerHTML = todosLosArtistas.map((a, i) => `
+            <div class="artist-chip ${artistasSeleccionados.has(a.id) ? 'selected' : ''}"
+                 id="chip-${a.id}"
+                 onclick="toggleArtista('${a.id}')">
+                <span class="chip-dot" style="background:${colorDeArtista(i)}"></span>
+                ${a.nombreArtista}
+            </div>
+        `).join('');
+    }
+
+    function toggleArtista(id) {
+        if (artistasSeleccionados.has(id)) {
+            artistasSeleccionados.delete(id);
+        } else {
+            artistasSeleccionados.add(id);
+        }
+        // Actualizar chip visualmente
+        const chip = document.getElementById(`chip-${id}`);
+        if (chip) chip.classList.toggle('selected', artistasSeleccionados.has(id));
+        // Redibujar gráficas
+        redrawCharts();
+    }
+
+    function seleccionarTodos() {
+        todosLosArtistas.forEach(a => artistasSeleccionados.add(a.id));
+        renderChips();
+        redrawCharts();
+    }
+
+    function limpiarSeleccion() {
+        artistasSeleccionados.clear();
+        renderChips();
+        redrawCharts();
+    }
+
+    /* CHART.JS — utilidades */
+    let barInst, lineInst, donutInst;
+
+    function gridColor() { return document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'; }
+    function textColor() { return document.body.classList.contains('dark-mode') ? '#c0c0d0' : '#6c757d'; }
+
+    // Devuelve solo los artistas que están seleccionados, con su índice original para el color
+    function artistasFiltrados() {
+        return todosLosArtistas
+            .map((a, i) => ({ ...a, colorIndex: i }))
+            .filter(a => artistasSeleccionados.has(a.id));
+    }
+
+    /* ── Gráfica de barras: popularidad ── */
+    function buildBarChart() {
+        const seleccionados = artistasFiltrados();
+        const canvas = document.getElementById('barChart');
+        const empty  = document.getElementById('barEmpty');
+
+        document.getElementById('barSubtitle').textContent = `${seleccionados.length} artista${seleccionados.length !== 1 ? 's' : ''} seleccionado${seleccionados.length !== 1 ? 's' : ''}`;
+
+        if (!seleccionados.length) {
+            canvas.style.display = 'none';
+            empty.style.display  = 'block';
+            if (barInst) { barInst.destroy(); barInst = null; }
+            return;
+        }
+        canvas.style.display = 'block';
+        empty.style.display  = 'none';
+
+        if (barInst) barInst.destroy();
+        barInst = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: seleccionados.map(a => a.nombreArtista),
+                datasets: [{
+                    label: 'Popularidad',
+                    data:  seleccionados.map(a => a.popularidad),
+                    backgroundColor: seleccionados.map(a => colorDeArtista(a.colorIndex)),
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks:{ color: textColor() }, grid:{ color: gridColor() } },
+                    y: { min:0, max:100, ticks:{ color: textColor() }, grid:{ color: gridColor() } }
+                }
+            }
+        });
+    }
+
+    /* ── Gráfica de dona: seguidores ── */
+    function buildDonutChart() {
+        const seleccionados = artistasFiltrados();
+        const canvas = document.getElementById('donutChart');
+        const empty  = document.getElementById('donutEmpty');
+
+        if (!seleccionados.length) {
+            canvas.style.display = 'none';
+            empty.style.display  = 'block';
+            if (donutInst) { donutInst.destroy(); donutInst = null; }
+            return;
+        }
+        canvas.style.display = 'block';
+        empty.style.display  = 'none';
+
+        if (donutInst) donutInst.destroy();
+        donutInst = new Chart(canvas.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: seleccionados.map(a => a.nombreArtista),
+                datasets: [{
+                    data:            seleccionados.map(a => a.seguidores),
+                    backgroundColor: seleccionados.map(a => colorDeArtista(a.colorIndex)),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: textColor(), font:{ size:11 }, padding:10 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} seguidores`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /* ── Gráfica de línea: popularidad simulada por mes ──
+       Como la API no guarda histórico, generamos una tendencia
+       creíble a partir de la popularidad actual del artista.     */
+    function buildLineChart() {
+        const seleccionados = artistasFiltrados();
+        const canvas = document.getElementById('lineChart');
+        const empty  = document.getElementById('lineEmpty');
+
+        if (!seleccionados.length) {
+            canvas.style.display = 'none';
+            empty.style.display  = 'block';
+            if (lineInst) { lineInst.destroy(); lineInst = null; }
+            return;
+        }
+        canvas.style.display = 'block';
+        empty.style.display  = 'none';
+
+        // Simular 6 meses de historial a partir de la popularidad actual
+        function simularHistorial(popularidadActual) {
+            const base = Math.max(10, popularidadActual - 25);
+            return Array.from({ length: 6 }, (_, i) => {
+                const progreso = base + ((popularidadActual - base) * (i / 5));
+                return Math.round(progreso + (Math.random() * 6 - 3));
+            });
+        }
+
+        if (lineInst) lineInst.destroy();
+        lineInst = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: ['Oct','Nov','Dic','Ene','Feb','Mar'],
+                datasets: seleccionados.map(a => ({
+                    label:           a.nombreArtista,
+                    data:            simularHistorial(a.popularidad),
+                    borderColor:     colorDeArtista(a.colorIndex),
+                    backgroundColor: colorDeArtista(a.colorIndex) + '22',
+                    tension:         .4,
+                    fill:            true,
+                    pointRadius:     4,
+                    pointHoverRadius:6,
+                }))
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels:{ color: textColor(), font:{ size:11 } } } },
+                scales: {
+                    x: { ticks:{ color: textColor() }, grid:{ color: gridColor() } },
+                    y: { min:0, max:100, ticks:{ color: textColor() }, grid:{ color: gridColor() } }
+                }
+            }
+        });
+    }
+
+    function redrawCharts() {
+        buildBarChart();
+        buildDonutChart();
+        buildLineChart();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => redrawCharts());
+
+    /* CALENDARIO */
+    const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+    const tourEventos = [
+        { fecha: new Date(2026,2,22), artista:'Luna Roja',   venue:'Foro Sol',         ciudad:'CDMX'        },
+        { fecha: new Date(2026,2,28), artista:'Los Pájaros', venue:'Auditorio GDL',    ciudad:'Guadalajara' },
+        { fecha: new Date(2026,3,5),  artista:'DJ Neon',     venue:'Lunario',          ciudad:'CDMX'        },
+        { fecha: new Date(2026,3,12), artista:'Luna Roja',   venue:'Palacio Deportes', ciudad:'CDMX'        },
+    ];
+
+    let calYear = 2026, calMonth = 2;
+
+    function buildCalendar() {
+        document.getElementById('calMonthName').textContent = `${MESES[calMonth]} ${calYear}`;
+        const grid = document.getElementById('calGrid');
+        grid.innerHTML = '';
+        DIAS.forEach(d => {
+            const h = document.createElement('div');
+            h.className = 'cal-header'; h.textContent = d; grid.appendChild(h);
+        });
+        const firstDay    = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+        const today       = new Date();
+        const eventDays   = tourEventos.filter(e => e.fecha.getFullYear()===calYear && e.fecha.getMonth()===calMonth).map(e => e.fecha.getDate());
+
+        for (let i=0; i<firstDay; i++) { const el=document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
+        for (let d=1; d<=daysInMonth; d++) {
+            const cell = document.createElement('div');
+            cell.className = 'cal-day';
+            cell.textContent = d;
+            if (d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear()) cell.classList.add('today');
+            if (eventDays.includes(d)) cell.classList.add('has-event');
+            cell.addEventListener('click', () => mostrarEventosDia(d));
+            grid.appendChild(cell);
+        }
+        mostrarEventosMes();
+    }
+
+    function mostrarEventosMes() {
+        renderEventos(tourEventos.filter(e => e.fecha.getFullYear()===calYear && e.fecha.getMonth()===calMonth));
+    }
+    function mostrarEventosDia(day) {
+        const ev = tourEventos.filter(e => e.fecha.getDate()===day && e.fecha.getMonth()===calMonth && e.fecha.getFullYear()===calYear);
+        renderEventos(ev.length ? ev : tourEventos.filter(e => e.fecha.getMonth()===calMonth && e.fecha.getFullYear()===calYear));
+    }
+    function renderEventos(eventos) {
+        const list = document.getElementById('calEventList');
+        if (!eventos.length) { list.innerHTML='<p style="color:#6c757d;font-size:.82rem">Sin eventos este mes.</p>'; return; }
+        list.innerHTML = eventos.map(e => `
+            <div class="event-item">
+                <div class="event-badge">${e.fecha.getDate()}<br>${MESES[e.fecha.getMonth()].slice(0,3)}</div>
+                <div>
+                    <div class="fw-semibold" style="font-size:.85rem">${e.artista}</div>
+                    <div class="text-muted" style="font-size:.75rem">📍 ${e.venue}, ${e.ciudad}</div>
+                </div>
+            </div>`).join('');
+    }
+    function prevMonth() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} buildCalendar(); }
+    function nextMonth() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} buildCalendar(); }
+
+    /* LEAFLET MAP */
+    function initMap() {
+        const venues = [
+            { nombre:'Foro Sol',          ciudad:'CDMX',        lat:19.3569, lng:-99.0887,  artista:'Luna Roja',   fecha:'22 Mar' },
+            { nombre:'Auditorio GDL',     ciudad:'Guadalajara', lat:20.6971, lng:-103.3498, artista:'Los Pájaros', fecha:'28 Mar' },
+            { nombre:'Lunario',           ciudad:'CDMX',        lat:19.4257, lng:-99.1960,  artista:'DJ Neon',     fecha:'5 Abr'  },
+            { nombre:'Palacio Deportes',  ciudad:'CDMX',        lat:19.4044, lng:-99.0951,  artista:'Luna Roja',   fecha:'12 Abr' },
+            { nombre:'Arena Monterrey',   ciudad:'Monterrey',   lat:25.6867, lng:-100.3161, artista:'Los Pájaros', fecha:'20 Abr' },
+            { nombre:'Teatro del Pueblo', ciudad:'Puebla',      lat:19.0413, lng:-98.2062,  artista:'DJ Neon',     fecha:'2 May'  },
+        ];
+        const map = L.map('tourMap').setView([22.5, -100.5], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        venues.forEach(v => {
+            L.circleMarker([v.lat, v.lng], { radius:10, fillColor:'#c98c8c', color:'#fff', weight:2, fillOpacity:.9 })
+             .addTo(map)
+             .bindPopup(`<strong>${v.artista}</strong><br>📍 ${v.nombre}, ${v.ciudad}<br>📅 ${v.fecha}`);
+        });
+    }
+    </script>
+</body>
+</html>

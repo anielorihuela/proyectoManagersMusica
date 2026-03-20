@@ -74,6 +74,7 @@ class ConciertoCambios(BaseModel):
     fecha: str | None = None
     venue_id: UUID | None = None
     costoBoleto: int | None = None
+    estado: str | None = None
  
 class ArtistaCambios(BaseModel):
     nombreArtista: str | None = None
@@ -82,3 +83,11 @@ class ArtistaCambios(BaseModel):
     seguidores: int | None = None
     conciertos_ids: list[UUID] | None = None #Podemos añadir varios nuevos conciertos a la vez
     albumes_ids: list[UUID] | None = None #Podemos añadir varios nuevos albumes a la vez
+    
+#PUT
+
+class ConciertoPut(BaseModel):
+    fecha: str
+    venue_id: UUID
+    costoBoleto:str 
+    estado: str

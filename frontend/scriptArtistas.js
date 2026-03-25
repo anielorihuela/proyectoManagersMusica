@@ -23,7 +23,15 @@ window.onload = async function() {
             //PARA CUALQUIER CAMBIO EN EL HTML, ES AQUÍ
             htmlArtista += `<p>- ${album.nombreAlbum} (${album.generoAlbum})</p>`;
         }
+        //SE CREA UN BOTÓN DE EDITAR PARA CADA ARTISTA
         htmlArtista += `<button id="${artista.id}">Editar artista</button>`;
         contenedor.innerHTML += htmlArtista + '<hr>';
+        //El botón debe tener un addEventListener
+        let butEditarArtista = document.getElementById(artista.id);
+        butEditarArtista.addEventListener('click', function() {
+            window.location.href = `editarArtistas.html?id=${artista.id}`;
+        });
     }
 }
+
+

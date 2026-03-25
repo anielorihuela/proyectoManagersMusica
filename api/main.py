@@ -1,8 +1,17 @@
 from fastapi import FastAPI, HTTPException, status
 from uuid import uuid4, UUID
 from clases import *
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
     
 def generar_guid():
     return uuid4()

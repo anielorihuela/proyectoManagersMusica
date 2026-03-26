@@ -1,4 +1,4 @@
-// 🔥 VARIABLES DE PAGINACIÓN 
+
 let pagina = 1;
 const porPagina = 5;
 let datosGlobales = [];
@@ -7,7 +7,6 @@ window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
-        // 🔥 1. Leer localStorage primero
         const datosGuardados = localStorage.getItem('conciertos');
 
         let artistas;
@@ -17,7 +16,7 @@ window.onload = async function () {
             console.log('Cargando desde localStorage', artistas);
 
         } else {
-            // 🔽 2. Fetch (SÍ es artistas porque así trabajas conciertos)
+           
             const res = await fetch('http://127.0.0.1:8000/v1/artistas');
 
             if (!res.ok) {
@@ -26,17 +25,17 @@ window.onload = async function () {
 
             artistas = await res.json();
 
-            // 🔥 3. Guardar en localStorage
+            
             localStorage.setItem('conciertos', JSON.stringify(artistas));
         }
 
-        // 🔥 Guardar datos globales
+        
         datosGlobales = artistas;
 
-        // 🔥 Render inicial
+       
         renderizarPagina();
 
-        // 🔥 EVENTOS (editar / eliminar)
+       
         contenedor.addEventListener('click', async function(e) {
 
             const id = e.target.getAttribute('data-id');
@@ -79,7 +78,7 @@ window.onload = async function () {
 
 
 
-// 🔥 FUNCIÓN DE PAGINACIÓN
+
 async function renderizarPagina() {
     const contenedor = document.getElementById('tablaConciertos');
     contenedor.innerHTML = '';
@@ -91,16 +90,16 @@ async function renderizarPagina() {
 
     await pintarConciertos(datosPaginados);
 
-    renderBotones(); // 🔥 IMPORTANTE
+    renderBotones(); 
 }
 
 
 
-// 🔥 BOTONES DE PAGINACIÓN
+
 function renderBotones() {
     const tabla = document.getElementById('tablaConciertos');
 
-    // evitar duplicados
+    
     const existente = document.getElementById('paginacion');
     if (existente) existente.remove();
 
@@ -135,7 +134,7 @@ function renderBotones() {
 
 
 
-// 🔥 FUNCIÓN PARA PINTAR CONCIERTOS
+
 async function pintarConciertos(artistas) {
     const contenedor = document.getElementById('tablaConciertos');
 

@@ -9,11 +9,10 @@
 
     <h1>Editar Artista</h1>
 
-    <!-- 🔥 FORM CORRECTO -->
     <form id="formEditarArtista">
 
         <label>Nombre</label>
-        <input type="text" id="nombreArtista"><br><br>
+        <input type="text" id="nombre" placeholder="Nombre del artista"><br><br>
 
         <label>Género</label>
         <input type="text" id="generoArtista"><br><br>
@@ -24,21 +23,26 @@
         <label>Seguidores</label>
         <input type="number" id="seguidores"><br><br>
 
-        <label>IDs de conciertos (separados por coma)</label>
+        <label>IDs de conciertos</label>
         <input type="text" id="conciertos_ids"><br><br>
 
-        <label>IDs de álbumes (separados por coma)</label>
+        <label>IDs de álbumes</label>
         <input type="text" id="albumes_ids"><br><br>
 
-        <!-- 🔥 BOTÓN CORREGIDO -->
-        <button type="submit">Guardar cambios</button>
+        
+        <label>Tipo de edición:</label>
+        <select id="tipoMetodo">
+            <option value="PUT">Editar todo (PUT)</option>
+            <option value="PATCH">Editar parcial (PATCH)</option>
+        </select>
+        <br><br>
+
+        <button id="btnGuardar" type="submit">Guardar</button>
 
     </form>
 
-    <!-- 🔥 CONTENEDOR PARA ERRORES -->
     <div id="mensaje"></div>
 
-    <!-- TU SCRIPT -->
     <script src="scriptEditarArtistas.js"></script>
 
 </body>

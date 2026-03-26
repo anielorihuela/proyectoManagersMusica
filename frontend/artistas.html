@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artistas</title>
 
-    <!-- BOOTSTRAP CSS -->
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
@@ -52,7 +52,7 @@
 
 <body>
 
-<!-- NAVBAR -->
+
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand" href="index.html">Managers música</a>
@@ -84,7 +84,7 @@
     </div>
 </nav>
 
-<!-- CONTENIDO -->
+
 <div class="container mt-5 pt-3">
     <h1 class="fw-bold mb-4 text-center">Artistas</h1>
     <p class="text-center text-muted mb-5">
@@ -96,29 +96,27 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">Lista de artistas</h5>
 
-            <!-- ✅ BOTÓN NUEVO ARTISTA -->
             <button class="btn btn-primary" onclick="irANuevoArtista()">
                 + Nuevo artista
             </button>
         </div>
 
-        <!-- AQUÍ SE INSERTA TODO DESDE JS -->
+       
         <div id="infoArtistas"></div>
 
     </div>
 </div>
 
-<!-- BOOTSTRAP JS -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- FUNCIÓN -->
+
 <script>
 function irANuevoArtista() {
     window.location.href = "nuevoArtista.html";
 }
 </script>
 
-<!-- TU SCRIPT -->
 <script src="scriptArtistas.js"></script>
 
 </body>

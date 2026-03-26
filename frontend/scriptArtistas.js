@@ -28,7 +28,7 @@ window.onload = async function () {
         datosGlobales = artistas;
         renderizarPagina();
 
-        // Solo dejamos eliminar aquí
+      
         contenedor.addEventListener('click', async function (e) {
 
             const id = e.target.getAttribute('id');
@@ -147,7 +147,7 @@ async function pintarArtistas(artistas) {
         }
 
         htmlArtista += `
-            <button onclick="editarArtista(${artista.id})">Editar</button>
+            <button onclick="editarArtista('${artista.id}')">Editar</button>
             <button class="btn-eliminar" id="${artista.id}">Eliminar</button>
             <hr>
         `;
@@ -158,13 +158,13 @@ async function pintarArtistas(artistas) {
 }
 
 
-// NUEVO ARTISTA
+
 function irANuevoArtista() {
     window.location.href = "nuevoArtista.html";
 }
 
 
-// EDITAR ARTISTA
+
 function editarArtista(id) {
     window.location.href = `editarArtistas.html?id=${id}`;
 }

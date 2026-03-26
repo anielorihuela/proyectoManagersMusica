@@ -5,25 +5,21 @@ window.onload = function () {
     form.onsubmit = async function (e) {
         e.preventDefault();
 
-        const nombre = document.getElementById("nombre").value;
-        const album = document.getElementById("album").value;
-        const cancion = document.getElementById("cancion").value;
+        const nombreArtista = document.getElementById("nombre").value;
 
-        if (!nombre) {
+        if (!nombreArtista) {
             alert("Campo vacío");
             return;
         }
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/v1/artistas', {
+            const res = await fetch("http://127.0.0.1:8000/v1/artista", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombreArtista: nombre,
-                    album: album,
-                    cancion: cancion
+                    nombreArtista: nombreArtista
                 })
             });
 

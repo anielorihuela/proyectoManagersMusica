@@ -296,8 +296,8 @@
             <div class="col-12 col-md-7">
                 <div class="chart-wrapper h-100">
                     <div class="chart-title-row">
-                        <h6 class="fw-semibold mb-0">Popularidad — Últimos 6 meses</h6>
-                        <small class="text-muted">Datos simulados por artista</small>
+                        <h6 class="fw-semibold mb-0">Conciertos por mes</h6>
+                        <small class="text-muted">Últimos 6 meses por artista</small>
                     </div>
                     <canvas id="lineChart"></canvas>
                     <div class="empty-state text-center py-4" id="lineEmpty" style="display:none">
@@ -330,11 +330,9 @@
     <script>
     /* CONFIGURACIÓN */
     const API = 'http://localhost:8000';
-
-    // Colores asignados dinámicamente a cada artista
     const PALETTE = ['#c98c8c','#8c9ec9','#8cc9a0','#c9b98c','#c98cb8','#9ec98c','#8cc9c9','#c9c98c'];
 
-    /* DARK MODE */
+    /* ── DARK MODE ── */
     const themeToggle = document.getElementById('themeToggle');
 
     function applyTheme(dark) {
@@ -349,21 +347,24 @@
         applyTheme(!isDark);
     });
 
+    /* ── ESTADO GLOBAL ── */
+    let todosLosArtistas    = [];
+    let todosLosConciertos  = [];
+    let todosLosVenues      = [];
+    let artistasSeleccionados = new Set();
+    let tourEventos         = [];   // se llena con datos reales de la API
+    let leafletMap          = null; // instancia del mapa (para no re-inicializar)
+
+    /* ── INICIO ── */
     window.addEventListener('load', () => {
         applyTheme(localStorage.getItem('theme') === 'dark');
         cargarDatos();
-        buildCalendar();
-        initMap();
     });
 
-    /* ESTADO GLOBAL */
-    let todosLosArtistas = [];   // array de objetos ArtistaRes de la API
-    let artistasSeleccionados = new Set(); // IDs seleccionados
-
-    /* FETCH A LA API */
+    /* ── FETCH A LA API ── */
     async function cargarDatos() {
         try {
-            // Cargar cache de localStorage si existe
+            // Mostrar datos cacheados mientras carga
             const cached = localStorage.getItem('artistas_cache');
             if (cached) {
                 todosLosArtistas = JSON.parse(cached);
@@ -371,15 +372,16 @@
                 seleccionarTodos();
             }
 
-            // Fetch a la API
-            const [artistas, conciertos, albumes, canciones] = await Promise.all([
-                fetch(`${API}/v1/artistas`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
-                fetch(`${API}/v1/conciertos`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
-                fetch(`${API}/v1/albumes`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
-                fetch(`${API}/v1/canciones`).then(r => { if (!r.ok) throw r.status; return r.json(); }),
+            // Fetch en paralelo a todos los endpoints necesarios
+            const [artistas, conciertos, albumes, canciones, venues] = await Promise.all([
+                fetch(`${API}/v1/artistas`).then(r  => { if (!r.ok)  throw new Error(`artistas: ${r.status}`);  return r.json(); }),
+                fetch(`${API}/v1/conciertos`).then(r => { if (!r.ok) throw new Error(`conciertos: ${r.status}`); return r.json(); }),
+                fetch(`${API}/v1/albumes`).then(r   => { if (!r.ok)  throw new Error(`albumes: ${r.status}`);   return r.json(); }),
+                fetch(`${API}/v1/canciones`).then(r => { if (!r.ok) throw new Error(`canciones: ${r.status}`); return r.json(); }),
+                fetch(`${API}/v1/venues`).then(r    => { if (!r.ok)  throw new Error(`venues: ${r.status}`);    return r.json(); }),
             ]);
 
-            // Actualizar KPIs
+            // KPIs
             document.getElementById('kpiArtistas').textContent   = artistas.length;
             document.getElementById('kpiConciertos').textContent = conciertos.filter(c => c.estado === 'programado').length;
             document.getElementById('kpiAlbumes').textContent    = albumes.length;
@@ -387,49 +389,91 @@
 
             // Guardar en localStorage
             localStorage.setItem('artistas_cache', JSON.stringify(artistas));
-            const kpis = { artistas: artistas.length, conciertos: conciertos.filter(c=>c.estado==='programado').length, albumes: albumes.length, canciones: canciones.length };
-            localStorage.setItem('kpi_data', JSON.stringify(kpis));
+            localStorage.setItem('kpi_data', JSON.stringify({
+                artistas: artistas.length,
+                conciertos: conciertos.filter(c => c.estado === 'programado').length,
+                albumes: albumes.length,
+                canciones: canciones.length
+            }));
 
-            // Renderizar chips con datos reales
-            todosLosArtistas = artistas;
+            // Actualizar estado global
+            todosLosArtistas   = artistas;
+            todosLosConciertos = conciertos;
+            todosLosVenues     = venues;
+
+            // Construir tourEventos cruzando conciertos + venues + artistas
+            tourEventos = [];
+            const venueMap   = Object.fromEntries(venues.map(v => [v.id, v]));
+            const artistaMap = Object.fromEntries(artistas.map(a => [a.id, a]));
+
+            conciertos.forEach(c => {
+                const venue = venueMap[c.venue_id];
+                if (!venue) return;
+                // Buscar qué artista tiene este concierto
+                const artista = artistas.find(a => a.conciertos_ids && a.conciertos_ids.includes(c.id));
+                tourEventos.push({
+                    fecha:    new Date(c.fecha + 'T00:00:00'),
+                    artista:  artista ? artista.nombreArtista : 'Artista desconocido',
+                    venue:    venue.nombreVenue,
+                    ciudad:   venue.ubicacion,
+                    costo:    c.costoBoleto,
+                    estado:   c.estado,
+                    lat:      venue.lat   || null,
+                    lng:      venue.lng   || null,
+                });
+            });
+
+            // Chips y gráficas con datos reales
             renderChips();
             seleccionarTodos();
+
+            // Calendario y mapa con datos reales
+            const hoy = new Date();
+            calYear  = hoy.getFullYear();
+            calMonth = hoy.getMonth();
+            buildCalendar();
+            initMap(venues);
 
         } catch (err) {
             console.warn('API no disponible:', err);
             document.getElementById('apiBanner').style.display = 'block';
 
-            // Datos de ejemplo si la API no responde
+            // Fallback: datos de ejemplo
             todosLosArtistas = [
-                { id:'1', nombreArtista:'Luna Roja',    generoArtista:'Rock',        popularidad:85, seguidores:124000 },
-                { id:'2', nombreArtista:'Los Pájaros',  generoArtista:'Pop',         popularidad:76, seguidores:98000  },
-                { id:'3', nombreArtista:'DJ Neon',      generoArtista:'Electrónica', popularidad:65, seguidores:75000  },
-                { id:'4', nombreArtista:'Banda Norte',  generoArtista:'Regional',    popularidad:54, seguidores:60000  },
-                { id:'5', nombreArtista:'Sin Fronteras',generoArtista:'Pop',         popularidad:70, seguidores:88000  },
+                { id:'1', nombreArtista:'Queen',           generoArtista:'Rock',     popularidad:98, seguidores:25000000, conciertos_ids:[] },
+                { id:'2', nombreArtista:'John Lennon',     generoArtista:'Pop',      popularidad:95, seguidores:15000000, conciertos_ids:[] },
+                { id:'3', nombreArtista:'Michael Jackson', generoArtista:'Pop',      popularidad:99, seguidores:30000000, conciertos_ids:[] },
+                { id:'4', nombreArtista:'Bob Dylan',       generoArtista:'Rock/Folk', popularidad:92, seguidores:10000000, conciertos_ids:[] },
             ];
             document.getElementById('kpiArtistas').textContent   = todosLosArtistas.length;
             document.getElementById('kpiConciertos').textContent = '—';
             document.getElementById('kpiAlbumes').textContent    = '—';
             document.getElementById('kpiCanciones').textContent  = '—';
+
+            tourEventos = [];
             renderChips();
             seleccionarTodos();
+
+            const hoy = new Date();
+            calYear  = hoy.getFullYear();
+            calMonth = hoy.getMonth();
+            buildCalendar();
+            initMap([]);
         }
     }
 
-    /* CHIPS DE ARTISTAS */
-    function colorDeArtista(index) {
-        return PALETTE[index % PALETTE.length];
-    }
+    /* ── CHIPS DE ARTISTAS ── */
+    function colorDeArtista(index) { return PALETTE[index % PALETTE.length]; }
 
     function renderChips() {
         const container = document.getElementById('chipsContainer');
         if (!todosLosArtistas.length) {
-            container.innerHTML = '<span class="empty-state">No hay artistas registrados aún. Agrega artistas desde la sección Artistas.</span>';
+            container.innerHTML = '<span class="empty-state">No hay artistas registrados aún.</span>';
             return;
         }
         container.innerHTML = todosLosArtistas.map((a, i) => `
             <div class="artist-chip ${artistasSeleccionados.has(a.id) ? 'selected' : ''}"
-                 id="chip-${a.id}"
+                 id="chip-${CSS.escape(a.id)}"
                  onclick="toggleArtista('${a.id}')">
                 <span class="chip-dot" style="background:${colorDeArtista(i)}"></span>
                 ${a.nombreArtista}
@@ -438,15 +482,9 @@
     }
 
     function toggleArtista(id) {
-        if (artistasSeleccionados.has(id)) {
-            artistasSeleccionados.delete(id);
-        } else {
-            artistasSeleccionados.add(id);
-        }
-        // Actualizar chip visualmente
-        const chip = document.getElementById(`chip-${id}`);
+        artistasSeleccionados.has(id) ? artistasSeleccionados.delete(id) : artistasSeleccionados.add(id);
+        const chip = document.getElementById(`chip-${CSS.escape(id)}`);
         if (chip) chip.classList.toggle('selected', artistasSeleccionados.has(id));
-        // Redibujar gráficas
         redrawCharts();
     }
 
@@ -462,13 +500,12 @@
         redrawCharts();
     }
 
-    /* CHART.JS — utilidades */
+    /* ── CHART.JS — utilidades ── */
     let barInst, lineInst, donutInst;
 
     function gridColor() { return document.body.classList.contains('dark-mode') ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'; }
     function textColor() { return document.body.classList.contains('dark-mode') ? '#c0c0d0' : '#6c757d'; }
 
-    // Devuelve solo los artistas que están seleccionados, con su índice original para el color
     function artistasFiltrados() {
         return todosLosArtistas
             .map((a, i) => ({ ...a, colorIndex: i }))
@@ -477,30 +514,27 @@
 
     /* ── Gráfica de barras: popularidad ── */
     function buildBarChart() {
-        const seleccionados = artistasFiltrados();
+        const sel    = artistasFiltrados();
         const canvas = document.getElementById('barChart');
         const empty  = document.getElementById('barEmpty');
+        document.getElementById('barSubtitle').textContent =
+            `${sel.length} artista${sel.length !== 1 ? 's' : ''} seleccionado${sel.length !== 1 ? 's' : ''}`;
 
-        document.getElementById('barSubtitle').textContent = `${seleccionados.length} artista${seleccionados.length !== 1 ? 's' : ''} seleccionado${seleccionados.length !== 1 ? 's' : ''}`;
-
-        if (!seleccionados.length) {
-            canvas.style.display = 'none';
-            empty.style.display  = 'block';
+        if (!sel.length) {
+            canvas.style.display = 'none'; empty.style.display = 'block';
             if (barInst) { barInst.destroy(); barInst = null; }
             return;
         }
-        canvas.style.display = 'block';
-        empty.style.display  = 'none';
-
+        canvas.style.display = 'block'; empty.style.display = 'none';
         if (barInst) barInst.destroy();
         barInst = new Chart(canvas.getContext('2d'), {
             type: 'bar',
             data: {
-                labels: seleccionados.map(a => a.nombreArtista),
+                labels: sel.map(a => a.nombreArtista),
                 datasets: [{
                     label: 'Popularidad',
-                    data:  seleccionados.map(a => a.popularidad),
-                    backgroundColor: seleccionados.map(a => colorDeArtista(a.colorIndex)),
+                    data:  sel.map(a => a.popularidad),
+                    backgroundColor: sel.map(a => colorDeArtista(a.colorIndex)),
                     borderRadius: 8,
                     borderSkipped: false,
                 }]
@@ -518,95 +552,97 @@
 
     /* ── Gráfica de dona: seguidores ── */
     function buildDonutChart() {
-        const seleccionados = artistasFiltrados();
+        const sel    = artistasFiltrados();
         const canvas = document.getElementById('donutChart');
         const empty  = document.getElementById('donutEmpty');
 
-        if (!seleccionados.length) {
-            canvas.style.display = 'none';
-            empty.style.display  = 'block';
+        if (!sel.length) {
+            canvas.style.display = 'none'; empty.style.display = 'block';
             if (donutInst) { donutInst.destroy(); donutInst = null; }
             return;
         }
-        canvas.style.display = 'block';
-        empty.style.display  = 'none';
-
+        canvas.style.display = 'block'; empty.style.display = 'none';
         if (donutInst) donutInst.destroy();
         donutInst = new Chart(canvas.getContext('2d'), {
             type: 'doughnut',
             data: {
-                labels: seleccionados.map(a => a.nombreArtista),
+                labels: sel.map(a => a.nombreArtista),
                 datasets: [{
-                    data:            seleccionados.map(a => a.seguidores),
-                    backgroundColor: seleccionados.map(a => colorDeArtista(a.colorIndex)),
+                    data:            sel.map(a => a.seguidores),
+                    backgroundColor: sel.map(a => colorDeArtista(a.colorIndex)),
                     borderWidth: 0
                 }]
             },
             options: {
                 cutout: '60%',
                 plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: textColor(), font:{ size:11 }, padding:10 }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} seguidores`
-                        }
-                    }
+                    legend: { position:'bottom', labels:{ color: textColor(), font:{ size:11 }, padding:10 } },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed.toLocaleString()} seguidores` } }
                 }
             }
         });
     }
 
-    /* ── Gráfica de línea: popularidad simulada por mes ──
-       Como la API no guarda histórico, generamos una tendencia
-       creíble a partir de la popularidad actual del artista.     */
+    /* ── Gráfica de línea: conciertos por mes (datos reales) ──
+       Muestra cuántos conciertos tiene cada artista seleccionado,
+       mes por mes, usando las fechas reales de la API.             */
     function buildLineChart() {
-        const seleccionados = artistasFiltrados();
+        const sel    = artistasFiltrados();
         const canvas = document.getElementById('lineChart');
         const empty  = document.getElementById('lineEmpty');
 
-        if (!seleccionados.length) {
-            canvas.style.display = 'none';
-            empty.style.display  = 'block';
+        if (!sel.length) {
+            canvas.style.display = 'none'; empty.style.display = 'block';
             if (lineInst) { lineInst.destroy(); lineInst = null; }
             return;
         }
-        canvas.style.display = 'block';
-        empty.style.display  = 'none';
+        canvas.style.display = 'block'; empty.style.display = 'none';
 
-        // Simular 6 meses de historial a partir de la popularidad actual
-        function simularHistorial(popularidadActual) {
-            const base = Math.max(10, popularidadActual - 25);
-            return Array.from({ length: 6 }, (_, i) => {
-                const progreso = base + ((popularidadActual - base) * (i / 5));
-                return Math.round(progreso + (Math.random() * 6 - 3));
-            });
+        // Construir etiquetas de los últimos 6 meses desde hoy
+        const MESES_CORTOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+        const hoy = new Date();
+        const labels = [];
+        const mesesRef = []; // { year, month }
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+            labels.push(`${MESES_CORTOS[d.getMonth()]} ${d.getFullYear()}`);
+            mesesRef.push({ year: d.getFullYear(), month: d.getMonth() });
         }
+
+        // Por cada artista seleccionado, contar conciertos por mes
+        const datasets = sel.map(artista => {
+            const conciertoIds = new Set(artista.conciertos_ids || []);
+            const conciertosDelArtista = todosLosConciertos.filter(c => conciertoIds.has(c.id));
+
+            const data = mesesRef.map(({ year, month }) =>
+                conciertosDelArtista.filter(c => {
+                    const f = new Date(c.fecha + 'T00:00:00');
+                    return f.getFullYear() === year && f.getMonth() === month;
+                }).length
+            );
+
+            return {
+                label:           artista.nombreArtista,
+                data,
+                borderColor:     colorDeArtista(artista.colorIndex),
+                backgroundColor: colorDeArtista(artista.colorIndex) + '22',
+                tension:         .4,
+                fill:            true,
+                pointRadius:     4,
+                pointHoverRadius:6,
+            };
+        });
 
         if (lineInst) lineInst.destroy();
         lineInst = new Chart(canvas.getContext('2d'), {
             type: 'line',
-            data: {
-                labels: ['Oct','Nov','Dic','Ene','Feb','Mar'],
-                datasets: seleccionados.map(a => ({
-                    label:           a.nombreArtista,
-                    data:            simularHistorial(a.popularidad),
-                    borderColor:     colorDeArtista(a.colorIndex),
-                    backgroundColor: colorDeArtista(a.colorIndex) + '22',
-                    tension:         .4,
-                    fill:            true,
-                    pointRadius:     4,
-                    pointHoverRadius:6,
-                }))
-            },
+            data: { labels, datasets },
             options: {
                 responsive: true,
                 plugins: { legend: { labels:{ color: textColor(), font:{ size:11 } } } },
                 scales: {
                     x: { ticks:{ color: textColor() }, grid:{ color: gridColor() } },
-                    y: { min:0, max:100, ticks:{ color: textColor() }, grid:{ color: gridColor() } }
+                    y: { min:0, ticks:{ stepSize:1, color: textColor() }, grid:{ color: gridColor() } }
                 }
             }
         });
@@ -618,20 +654,10 @@
         buildLineChart();
     }
 
-    document.addEventListener('DOMContentLoaded', () => redrawCharts());
-
-    /* CALENDARIO */
+    /* ── CALENDARIO (datos reales de tourEventos) ── */
     const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const DIAS  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-
-    const tourEventos = [
-        { fecha: new Date(2026,2,22), artista:'Luna Roja',   venue:'Foro Sol',         ciudad:'CDMX'        },
-        { fecha: new Date(2026,2,28), artista:'Los Pájaros', venue:'Auditorio GDL',    ciudad:'Guadalajara' },
-        { fecha: new Date(2026,3,5),  artista:'DJ Neon',     venue:'Lunario',          ciudad:'CDMX'        },
-        { fecha: new Date(2026,3,12), artista:'Luna Roja',   venue:'Palacio Deportes', ciudad:'CDMX'        },
-    ];
-
-    let calYear = 2026, calMonth = 2;
+    let calYear, calMonth;
 
     function buildCalendar() {
         document.getElementById('calMonthName').textContent = `${MESES[calMonth]} ${calYear}`;
@@ -641,17 +667,23 @@
             const h = document.createElement('div');
             h.className = 'cal-header'; h.textContent = d; grid.appendChild(h);
         });
-        const firstDay    = new Date(calYear, calMonth, 1).getDay();
-        const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-        const today       = new Date();
-        const eventDays   = tourEventos.filter(e => e.fecha.getFullYear()===calYear && e.fecha.getMonth()===calMonth).map(e => e.fecha.getDate());
 
-        for (let i=0; i<firstDay; i++) { const el=document.createElement('div'); el.className='cal-day empty'; grid.appendChild(el); }
-        for (let d=1; d<=daysInMonth; d++) {
+        const firstDay    = new Date(calYear, calMonth, 1).getDay();
+        const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+        const today       = new Date();
+        const eventDays   = tourEventos
+            .filter(e => e.fecha.getFullYear() === calYear && e.fecha.getMonth() === calMonth)
+            .map(e => e.fecha.getDate());
+
+        for (let i = 0; i < firstDay; i++) {
+            const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
+        }
+        for (let d = 1; d <= daysInMonth; d++) {
             const cell = document.createElement('div');
             cell.className = 'cal-day';
             cell.textContent = d;
-            if (d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear()) cell.classList.add('today');
+            if (d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear())
+                cell.classList.add('today');
             if (eventDays.includes(d)) cell.classList.add('has-event');
             cell.addEventListener('click', () => mostrarEventosDia(d));
             grid.appendChild(cell);
@@ -660,15 +692,20 @@
     }
 
     function mostrarEventosMes() {
-        renderEventos(tourEventos.filter(e => e.fecha.getFullYear()===calYear && e.fecha.getMonth()===calMonth));
+        renderEventos(tourEventos.filter(e => e.fecha.getFullYear() === calYear && e.fecha.getMonth() === calMonth));
     }
     function mostrarEventosDia(day) {
-        const ev = tourEventos.filter(e => e.fecha.getDate()===day && e.fecha.getMonth()===calMonth && e.fecha.getFullYear()===calYear);
-        renderEventos(ev.length ? ev : tourEventos.filter(e => e.fecha.getMonth()===calMonth && e.fecha.getFullYear()===calYear));
+        const ev = tourEventos.filter(e =>
+            e.fecha.getDate() === day && e.fecha.getMonth() === calMonth && e.fecha.getFullYear() === calYear
+        );
+        renderEventos(ev.length ? ev : tourEventos.filter(e => e.fecha.getMonth() === calMonth && e.fecha.getFullYear() === calYear));
     }
     function renderEventos(eventos) {
         const list = document.getElementById('calEventList');
-        if (!eventos.length) { list.innerHTML='<p style="color:#6c757d;font-size:.82rem">Sin eventos este mes.</p>'; return; }
+        if (!eventos.length) {
+            list.innerHTML = '<p style="color:#6c757d;font-size:.82rem">Sin eventos este mes.</p>';
+            return;
+        }
         list.innerHTML = eventos.map(e => `
             <div class="event-item">
                 <div class="event-badge">${e.fecha.getDate()}<br>${MESES[e.fecha.getMonth()].slice(0,3)}</div>
@@ -678,28 +715,99 @@
                 </div>
             </div>`).join('');
     }
-    function prevMonth() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} buildCalendar(); }
-    function nextMonth() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} buildCalendar(); }
+    function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } buildCalendar(); }
+    function nextMonth() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } buildCalendar(); }
 
-    /* LEAFLET MAP */
-    function initMap() {
-        const venues = [
-            { nombre:'Foro Sol',          ciudad:'CDMX',        lat:19.3569, lng:-99.0887,  artista:'Luna Roja',   fecha:'22 Mar' },
-            { nombre:'Auditorio GDL',     ciudad:'Guadalajara', lat:20.6971, lng:-103.3498, artista:'Los Pájaros', fecha:'28 Mar' },
-            { nombre:'Lunario',           ciudad:'CDMX',        lat:19.4257, lng:-99.1960,  artista:'DJ Neon',     fecha:'5 Abr'  },
-            { nombre:'Palacio Deportes',  ciudad:'CDMX',        lat:19.4044, lng:-99.0951,  artista:'Luna Roja',   fecha:'12 Abr' },
-            { nombre:'Arena Monterrey',   ciudad:'Monterrey',   lat:25.6867, lng:-100.3161, artista:'Los Pájaros', fecha:'20 Abr' },
-            { nombre:'Teatro del Pueblo', ciudad:'Puebla',      lat:19.0413, lng:-98.2062,  artista:'DJ Neon',     fecha:'2 May'  },
-        ];
-        const map = L.map('tourMap').setView([22.5, -100.5], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        venues.forEach(v => {
-            L.circleMarker([v.lat, v.lng], { radius:10, fillColor:'#c98c8c', color:'#fff', weight:2, fillOpacity:.9 })
-             .addTo(map)
-             .bindPopup(`<strong>${v.artista}</strong><br>📍 ${v.nombre}, ${v.ciudad}<br>📅 ${v.fecha}`);
+    /* ── LEAFLET MAP (venues reales de la API) ──
+       La API guarda ubicación como texto (ej. "Ciudad de México").
+       Usamos coordenadas conocidas para las ciudades más comunes;
+       si no se reconoce la ciudad, se omite el marcador.           */
+    const COORDENADAS_CIUDAD = {
+        'ciudad de méxico': [19.4326, -99.1332],
+        'cdmx':             [19.4326, -99.1332],
+        'guadalajara':      [20.6597, -103.3496],
+        'monterrey':        [25.6866, -100.3161],
+        'puebla':           [19.0414, -98.2063],
+        'tijuana':          [32.5149, -117.0382],
+        'cancún':           [21.1619, -86.8515],
+        'madrid':           [40.4168, -3.7038],
+        'madrid, españa':   [40.4168, -3.7038],
+        'nueva york':       [40.7128, -74.0060],
+        'nueva york, ee.uu.': [40.7128, -74.0060],
+        'new york':         [40.7128, -74.0060],
+        'los ángeles':      [34.0522, -118.2437],
+        'miami':            [25.7617, -80.1918],
+        'buenos aires':     [-34.6037, -58.3816],
+        'bogotá':           [4.7110, -74.0721],
+        'santiago':         [-33.4489, -70.6693],
+        'lima':             [-12.0464, -77.0428],
+    };
+
+    function coordsParaCiudad(ubicacion) {
+        if (!ubicacion) return null;
+        const key = ubicacion.toLowerCase().trim();
+        // Buscar coincidencia exacta primero, luego parcial
+        if (COORDENADAS_CIUDAD[key]) return COORDENADAS_CIUDAD[key];
+        for (const [ciudad, coords] of Object.entries(COORDENADAS_CIUDAD)) {
+            if (key.includes(ciudad) || ciudad.includes(key)) return coords;
+        }
+        return null;
+    }
+
+    function initMap(venues) {
+        // Inicializar mapa solo una vez
+        if (!leafletMap) {
+            leafletMap = L.map('tourMap').setView([22.5, -100.5], 4);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(leafletMap);
+        } else {
+            // Limpiar marcadores anteriores
+            leafletMap.eachLayer(layer => {
+                if (layer instanceof L.CircleMarker) leafletMap.removeLayer(layer);
+            });
+        }
+
+        // Usar tourEventos para los popups (tienen artista + fecha)
+        // Agrupar por venue para no repetir marcadores
+        const venuesMarcados = new Set();
+
+        tourEventos.forEach(ev => {
+            const coords = coordsParaCiudad(ev.ciudad);
+            if (!coords) return;
+
+            // Si ya hay un marcador muy cerca, solo actualizar el popup
+            const key = ev.ciudad.toLowerCase().trim();
+            if (venuesMarcados.has(key)) return;
+            venuesMarcados.add(key);
+
+            // Recopilar todos los eventos en esa ciudad para el popup
+            const eventosEnCiudad = tourEventos.filter(e =>
+                e.ciudad.toLowerCase().trim() === key
+            );
+            const popupContent = `
+                <strong>📍 ${ev.ciudad}</strong><br>
+                ${eventosEnCiudad.map(e =>
+                    `<small>🎤 ${e.artista} — ${e.venue}<br>📅 ${e.fecha.toLocaleDateString('es-MX')}</small>`
+                ).join('<br>')}
+            `;
+
+            L.circleMarker(coords, {
+                radius: 8 + Math.min(eventosEnCiudad.length * 2, 8),
+                fillColor: '#c98c8c', color: '#fff', weight: 2, fillOpacity: .9
+            }).addTo(leafletMap).bindPopup(popupContent);
         });
+
+        // Si no hay eventos con coords conocidas, mostrar venues directamente
+        if (venuesMarcados.size === 0 && venues.length > 0) {
+            venues.forEach(v => {
+                const coords = coordsParaCiudad(v.ubicacion);
+                if (!coords) return;
+                L.circleMarker(coords, {
+                    radius: 10, fillColor: '#c98c8c', color: '#fff', weight: 2, fillOpacity: .9
+                }).addTo(leafletMap).bindPopup(`<strong>${v.nombreVenue}</strong><br>📍 ${v.ubicacion}`);
+            });
+        }
     }
     </script>
 </body>

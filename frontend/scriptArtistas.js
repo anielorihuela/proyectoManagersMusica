@@ -1,72 +1,91 @@
 window.onload = async function() {
-    const contenedor = document.getElementById('infoArtistas');
+    const tablaArtistas = document.getElementById('tablaArtistas');
+    const totalArtistas = document.getElementById('totalArtistas');
 
     try {
-        // 1. Leer localStorage primero
         const datosGuardados = localStorage.getItem('artistas');
-
         let artistas;
 
         if (datosGuardados) {
             artistas = JSON.parse(datosGuardados);
             console.log('Cargando desde localStorage', artistas);
         } else {
-            // 2. Si no hay datos, hacer fetch
             const res = await fetch('http://127.0.0.1:8000/v1/artistas');
             if (!res.ok) throw new Error("Error al cargar artistas");
 
             artistas = await res.json();
-
-            // 3. Guardar en localStorage
             localStorage.setItem('artistas', JSON.stringify(artistas));
         }
 
         console.log(artistas);
 
-        // 4. Limpiar contenedor
-        contenedor.innerHTML = "";
+        tablaArtistas.innerHTML = "";
+        totalArtistas.textContent = artistas.length;
 
-        // 5. Mostrar artistas
         for (const artista of artistas) {
-            let htmlArtista = `
-                <div class="artista">
-                    <h2>${artista.nombreArtista}</h2>
-                    <p>Género: ${artista.generoArtista}</p>
-                    <p>Popularidad: ${artista.popularidad}</p>
-                    <p>Seguidores: ${artista.seguidores}</p>
-                    <h4>Álbumes:</h4>
-            `;
+            let albumesHTML = '<span class="text-muted small">Sin álbumes</span>';
 
-            // 6. Traer álbumes
-            for (const id_album of artista.albumes_ids) {
-                const resAlbum = await fetch(`http://127.0.0.1:8000/v1/album/${id_album}`);
-                if (!resAlbum.ok) throw new Error(`Error al cargar álbum ${id_album}`);
+            if (artista.albumes_ids && artista.albumes_ids.length > 0) {
+                let albumes = [];
 
-                const album = await resAlbum.json();
-                htmlArtista += `<p>- ${album.nombreAlbum} (${album.generoAlbum})</p>`;
+                for (const idAlbum of artista.albumes_ids) {
+                    const resAlbum = await fetch(`http://127.0.0.1:8000/v1/album/${idAlbum}`);
+
+                    if (resAlbum.ok) {
+                        const album = await resAlbum.json();
+                        albumes.push(
+                            `<span class="badge text-bg-light border me-1 mb-1">${album.nombreAlbum}</span>`
+                        );
+                    }
+                }
+
+                if (albumes.length > 0) {
+                    albumesHTML = albumes.join('');
+                }
             }
 
-            // 7. Botones
-            htmlArtista += `
-                <button class="btn-editar" id="${artista.id}">Editar artista</button>
-                <button class="btn-eliminar" id="${artista.id}">Eliminar artista</button>
-                <hr>
-            `;
+            tablaArtistas.innerHTML += `
+                <tr>
+                    <td class="fw-semibold">${artista.id}</td>
 
-            contenedor.innerHTML += htmlArtista;
+                    <td>
+                        <div class="fw-semibold">${artista.nombreArtista}</div>
+                        <div class="small text-muted">
+                            Popularidad: ${artista.popularidad ?? 'N/D'} |
+                            Seguidores: ${artista.seguidores ?? 'N/D'}
+                        </div>
+                        <div class="mt-2">
+                            ${albumesHTML}
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="badge bg-secondary">${artista.generoArtista ?? 'Sin género'}</span>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${artista.id}">
+                            Editar
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${artista.id}">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            `;
         }
 
-        // 8. Eventos
-        contenedor.addEventListener('click', async function(e) {
+        tablaArtistas.addEventListener('click', async function(e) {
+            const boton = e.target.closest('button');
+            if (!boton) return;
 
-            if (e.target.classList.contains('btn-editar')) {
-                const id = e.target.getAttribute('id');
+            const id = boton.dataset.id;
+
+            if (boton.classList.contains('btn-editar')) {
                 window.location.href = `editarArtistas.html?id=${id}`;
             }
 
-            else if (e.target.classList.contains('btn-eliminar')) {
-                const id = e.target.getAttribute('id');
-
+            else if (boton.classList.contains('btn-eliminar')) {
                 try {
                     const resEliminar = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, {
                         method: "DELETE"
@@ -74,10 +93,7 @@ window.onload = async function() {
 
                     if (resEliminar.ok) {
                         alert("Artista eliminado correctamente");
-
-                        // limpiar cache
                         localStorage.removeItem('artistas');
-
                         location.reload();
                     } else {
                         alert("No se pudo eliminar al artista");
@@ -91,6 +107,12 @@ window.onload = async function() {
 
     } catch (error) {
         console.error("Error:", error);
-        contenedor.innerHTML = '<p>Error al cargar artistas</p>';
+        tablaArtistas.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-danger">
+                    Error al cargar artistas
+                </td>
+            </tr>
+        `;
     }
 };

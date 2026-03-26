@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Álbum</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <style>
+        .btn-outline-light {
+            border-radius: 10px;
+            border-color: white;
+        }
+
+        .card {
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,1);
+            background-color: #c98c8c;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+
+        body.dark-mode .navbar {
+            background-color: #7a4a4a !important;
+        }
+
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: #e8e8e8;
+        }
+
+        body.dark-mode .form-control,
+        body.dark-mode .form-select {
+            background-color: #0f1a2e;
+            color: #e8e8e8;
+            border-color: #2a2a4a;
+        }
+
+        body.dark-mode .form-control:focus,
+        body.dark-mode .form-select:focus {
+            background-color: #0f1a2e;
+            color: #e8e8e8;
+            border-color: #c98c8c;
+            box-shadow: 0 0 0 0.2rem rgba(201,140,140,0.25);
+        }
+
+        body.dark-mode .form-label {
+            color: #c0c0d0;
+        }
+
+        body.dark-mode .form-text,
+        body.dark-mode .text-muted {
+            color: #a0a0b8 !important;
+        }
+
+        body.dark-mode .btn-outline-secondary {
+            color: #c0c0d0;
+            border-color: #4a4a6a;
+        }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background-color: #4a4a6a;
+            color: #e8e8e8;
+        }
+
+        .acciones-secundarias a {
+            min-width: 160px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">Managers música</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menuNavegacion">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="artistas.html">Artistas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
+                </ul>
+
+                <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 pt-3 pb-5">
+        <h1 class="fw-bold mb-2 text-center">Nuevo álbum</h1>
+        <p class="text-center text-muted mb-5">
+            Captura la información del álbum y relaciona sus canciones
+        </p>
+
+        <div class="card p-4 shadow-sm mx-auto" style="max-width: 720px;">
+            <div class="mb-3">
+                <label for="nombreAlbum" class="form-label fw-semibold">Nombre del álbum</label>
+                <input type="text" class="form-control" id="nombreAlbum" placeholder="Nombre del álbum">
+            </div>
+
+            <div class="mb-4">
+                <label for="generoAlbum" class="form-label fw-semibold">Género del álbum</label>
+                <input type="text" class="form-control" id="generoAlbum" placeholder="Pop, Rock, Reggaetón, Jazz">
+            </div>
+
+            <hr class="my-4">
+
+            <div class="mb-3">
+                <label for="canciones_ids" class="form-label fw-semibold">IDs de canciones</label>
+                <input type="text" class="form-control" id="canciones_ids" placeholder="id1, id2, id3">
+                <div class="form-text">
+                    Escribe los UUID separados por coma. También puedes crear una canción nueva con el botón de abajo.
+                </div>
+            </div>
+
+            <div class="mb-4 acciones-secundarias">
+                <a href="nuevaCancion.html" class="btn btn-outline-primary">Ir a crear canción</a>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end flex-wrap">
+                <a href="artistas.html" class="btn btn-outline-secondary">Cancelar</a>
+                <button type="button" class="btn btn-primary" id="btnCrearAlbum">Crear álbum</button>
+            </div>
+
+            <div id="mensajeResultado" class="mt-3" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+
+        function applyTheme(dark) {
+            document.body.classList.toggle('dark-mode', dark);
+            themeToggle.textContent = dark ? 'Light mode' : 'Dark mode';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            applyTheme(!isDark);
+        });
+
+        window.addEventListener('load', () => {
+            applyTheme(localStorage.getItem('theme') === 'dark');
+        });
+    </script>
+
+    <script src="scriptNuevoAlbum.js"></script>
+</body>
+</html>

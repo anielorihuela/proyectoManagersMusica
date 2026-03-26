@@ -64,3 +64,5 @@ async function guardar_cambios() {
         }
     }
 }
+
+console.log("cambio editar artistas");

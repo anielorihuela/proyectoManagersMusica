@@ -35,6 +35,34 @@
 
         body {
             background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .navbar {
+            background-color: #7a4a4a !important;
+        }
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .card-text {
+            color: #a0a0b8;
+        }
+        body.dark-mode .text-muted {
+            color: #a0a0b8 !important;
+        }
+        body.dark-mode .btn-outline-dark {
+            color: #e8e8e8;
+            border-color: #e8e8e8;
+        }
+        body.dark-mode .btn-outline-dark:hover {
+            background-color: #e8e8e8;
+            color: #1a1a2e;
         }
     </style>
 
@@ -115,6 +143,24 @@
             </div>
         </div>
 
+        <script>
+        const themeToggle = document.getElementById('themeToggle');
+
+        function applyTheme(dark) {
+            document.body.classList.toggle('dark-mode', dark);
+            themeToggle.textContent = dark ? 'Light mode' : 'Dark mode';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            applyTheme(!isDark);
+        });
+
+        window.addEventListener('load', () => {
+            applyTheme(localStorage.getItem('theme') === 'dark');
+        });
+        </script>
         <script src="scriptIndex.js"></script>
     </body>
 </html>

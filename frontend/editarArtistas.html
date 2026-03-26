@@ -1,11 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
-    <head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Artista</title>
+</head>
+<body>
 
-    </head>
+    <h1>Editar Artista</h1>
 
     <body>
         <div id="infoArtistas"></div>
         <script src="scriptArtistas.js"></script>
     </body>
+    <form id="formEditarArtista">
+        <label for="nombreArtista">Nombre</label>
+        <input type="text" id="nombreArtista"><br><br>
+
+        <label for="generoArtista">Género</label>
+        <input type="text" id="generoArtista"><br><br>
+
+        <label for="popularidad">Popularidad</label>
+        <input type="number" id="popularidad"><br><br>
+
+        <label for="seguidores">Seguidores</label>
+        <input type="number" id="seguidores"><br><br>
+
+        <label for="conciertos_ids">IDs de conciertos (separados por coma)</label>
+        <input type="text" id="conciertos_ids"><br><br>
+
+        <label for="albumes_ids">IDs de álbumes (separados por coma)</label>
+        <input type="text" id="albumes_ids"><br><br>
+
+        <button type="button" id="btnGuardar">Guardar cambios</button>
+    </form>
+
+    <script src="scriptEditarArtistas.js"></script>
+</body>
 </html>

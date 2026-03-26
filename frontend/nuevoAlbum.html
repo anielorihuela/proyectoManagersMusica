@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Álbum</title>
+</head>
+<body>
+
+    <button onclick="window.location.href='nuevoArtista.html'">
+        ← Volver
+    </button>
+
+    <h1>Nuevo Álbum</h1>
+
+    <form id="formAlbum" style="max-width: 500px; margin: 20px auto; padding: 20px;">
+
+        <label>Nombre del Álbum</label>
+        <input 
+            type="text" 
+            id="nombreAlbum" 
+            placeholder="Nombre del álbum"
+            required
+        >
+        <br><br>
+
+        <label>Género</label>
+        <input 
+            type="text" 
+            id="generoAlbum" 
+            placeholder="Género del álbum"
+            required
+        >
+        <br><br>
+
+        <label>IDs de Canciones (separadas por comas - opcional)</label>
+        <input 
+            type="text" 
+            id="canciones_ids" 
+            placeholder="ej: uuid1, uuid2, uuid3"
+        >
+        <br><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <script src="scriptNuevoAlbum.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nuevo Artista</title>
+</head>
+<body>
+
+    <button onclick="window.location.href='artistas.html'">
+        ← Volver a artistas
+    </button>
+
+    <h1>Nuevo Artista</h1>
+
+    <form id="formArtista">
+        <input 
+            type="text" 
+            id="nombre" 
+            placeholder="Nombre del artista"
+            required
+        >
+        <br><br>
+
+        <h3>Álbum</h3>
+        <input 
+            type="text" 
+            id="album" 
+            placeholder="Nombre del álbum"
+        >
+        <br><br>
+
+        <h3>Canción</h3>
+        <input 
+            type="text" 
+            id="cancion" 
+            placeholder="Nombre de la canción"
+        >
+        <br><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <script src="scriptNuevoArtista.js"></script>
+
+</body>
+</html>

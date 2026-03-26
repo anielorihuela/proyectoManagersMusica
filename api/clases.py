@@ -58,11 +58,11 @@ class Album(BaseModel):
     
 class Artista(BaseModel):
     nombreArtista: str
-    generoArtista: str
-    popularidad: int
-    seguidores: int
-    conciertos_ids: list[UUID]  
-    albumes_ids: list[UUID]  
+    generoArtista: str = "Sin género"
+    popularidad: int = 0
+    seguidores: int = 0
+    conciertos_ids: list[UUID] = []
+    albumes_ids: list[UUID] = []  
      
 #Clases para PATCH
 class VenueCambios(BaseModel):

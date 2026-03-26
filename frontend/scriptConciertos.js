@@ -1,8 +1,12 @@
-window.onload = async function conciertos() {
+
+let pagina = 1;
+const porPagina = 5;
+let datosGlobales = [];
+
+window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
-        // Leer localStorage primero
         const datosGuardados = localStorage.getItem('conciertos');
 
         let artistas;
@@ -10,64 +14,39 @@ window.onload = async function conciertos() {
         if (datosGuardados) {
             artistas = JSON.parse(datosGuardados);
             console.log('Cargando desde localStorage', artistas);
-        } else {
-            // FETCH validado
-            const artistasRes = await fetch('http://127.0.0.1:8000/v1/artistas');
 
-            if (!artistasRes.ok) {
+        } else {
+           
+            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
+
+            if (!res.ok) {
                 throw new Error('Error al cargar artistas');
             }
 
-            artistas = await artistasRes.json();
-            console.log(artistas);
+            artistas = await res.json();
 
-            //  Guardar en localStorage
+            
             localStorage.setItem('conciertos', JSON.stringify(artistas));
         }
 
-        // Limpiar tabla
-        contenedor.innerHTML = "";
+        
+        datosGlobales = artistas;
 
-        // Recorrer artistas
-        for (const artista of artistas) {
-            let conciertos_ids = artista.conciertos_ids;
+       
+        renderizarPagina();
 
-            for (const concierto_id of conciertos_ids) {
-
-                const conciertoRes = await fetch(`http://127.0.0.1:8000/v1/concierto/${concierto_id}`);
-                if (!conciertoRes.ok) throw new Error("Error al cargar concierto");
-
-                const concierto = await conciertoRes.json();
-
-                const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
-                if (!venueRes.ok) throw new Error("Error al cargar venue");
-
-                const venue = await venueRes.json();
-
-                contenedor.innerHTML += `
-                <tr>
-                    <td>${concierto.id}</td>
-                    <td>${concierto.fecha}</td>
-                    <td>${venue.nombreVenue}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${concierto.id}">Editar</button>
-                        <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${concierto.id}">Eliminar</button>
-                    </td>
-                </tr>
-                `;
-            }
-        }
-
-        //Eventos
+       
         contenedor.addEventListener('click', async function(e) {
 
+            const id = e.target.getAttribute('data-id');
+
             if (e.target.classList.contains('btn-editar')) {
-                const id = e.target.getAttribute('data-id');
                 window.location.href = `editarConcierto.html?id=${id}`;
             }
 
             else if (e.target.classList.contains('btn-eliminar')) {
-                const id = e.target.getAttribute('data-id');
+
+                if (!confirm("¿Seguro que quieres eliminar este concierto?")) return;
 
                 try {
                     const resEliminar = await fetch(`http://127.0.0.1:8000/v1/concierto/${id}`, {
@@ -77,17 +56,16 @@ window.onload = async function conciertos() {
                     if (resEliminar.ok) {
                         alert("Concierto eliminado correctamente");
 
-                        // limpiar localStorage
                         localStorage.removeItem('conciertos');
-
                         location.reload();
+
                     } else {
-                        const error = await resEliminar.json();
-                        alert("No se pudo eliminar el concierto: " + (error.detail || "Error desconocido"));
+                        throw new Error();
                     }
 
                 } catch (error) {
-                    alert("Error al eliminar el concierto: " + error.message);
+                    alert("Error al eliminar el concierto");
+                    console.error(error);
                 }
             }
         });
@@ -97,3 +75,103 @@ window.onload = async function conciertos() {
         contenedor.innerHTML = '<tr><td colspan="4">Error al cargar conciertos</td></tr>';
     }
 };
+
+
+
+
+async function renderizarPagina() {
+    const contenedor = document.getElementById('tablaConciertos');
+    contenedor.innerHTML = '';
+
+    const inicio = (pagina - 1) * porPagina;
+    const fin = inicio + porPagina;
+
+    const datosPaginados = datosGlobales.slice(inicio, fin);
+
+    await pintarConciertos(datosPaginados);
+
+    renderBotones(); 
+}
+
+
+
+
+function renderBotones() {
+    const tabla = document.getElementById('tablaConciertos');
+
+    
+    const existente = document.getElementById('paginacion');
+    if (existente) existente.remove();
+
+    const totalPaginas = Math.ceil(datosGlobales.length / porPagina);
+
+    const div = document.createElement('div');
+    div.id = 'paginacion';
+    div.style.marginTop = "20px";
+
+    div.innerHTML = `
+        <button id="anterior">⬅ Anterior</button>
+        <span style="margin: 0 10px;"> Página ${pagina} de ${totalPaginas} </span>
+        <button id="siguiente">Siguiente ➡</button>
+    `;
+
+    tabla.parentNode.appendChild(div);
+
+    document.getElementById('anterior').onclick = () => {
+        if (pagina > 1) {
+            pagina--;
+            renderizarPagina();
+        }
+    };
+
+    document.getElementById('siguiente').onclick = () => {
+        if (pagina * porPagina < datosGlobales.length) {
+            pagina++;
+            renderizarPagina();
+        }
+    };
+}
+
+
+
+
+async function pintarConciertos(artistas) {
+    const contenedor = document.getElementById('tablaConciertos');
+
+    for (const artista of artistas) {
+
+        if (!artista.conciertos_ids || artista.conciertos_ids.length === 0) continue;
+
+        for (const concierto_id of artista.conciertos_ids) {
+
+            try {
+                const conciertoRes = await fetch(`http://127.0.0.1:8000/v1/concierto/${concierto_id}`);
+                if (!conciertoRes.ok) throw new Error();
+
+                const concierto = await conciertoRes.json();
+
+                const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
+                if (!venueRes.ok) throw new Error();
+
+                const venue = await venueRes.json();
+
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${concierto.id}</td>
+                    <td>${concierto.fecha}</td>
+                    <td>${venue.nombreVenue}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${concierto.id}">Editar</button>
+                        <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${concierto.id}">Eliminar</button>
+                    </td>
+                `;
+
+                contenedor.appendChild(tr);
+
+            } catch {
+                console.error("Error cargando concierto o venue");
+            }
+        }
+    }
+}

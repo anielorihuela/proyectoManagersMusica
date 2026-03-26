@@ -1,4 +1,3 @@
-// 🔥 VARIABLES DE PAGINACIÓN
 let pagina = 1;
 const porPagina = 5;
 let datosGlobales = [];
@@ -7,7 +6,6 @@ window.onload = async function () {
     const contenedor = document.getElementById('infoArtistas');
 
     try {
-        // 🔥 1. Leer localStorage primero
         const datosGuardados = localStorage.getItem('artistas');
 
         let artistas;
@@ -16,7 +14,6 @@ window.onload = async function () {
             artistas = JSON.parse(datosGuardados);
             console.log('Cargando desde localStorage', artistas);
         } else {
-            // 🔽 2. Fetch si no hay datos
             const res = await fetch('http://127.0.0.1:8000/v1/artistas');
 
             if (!res.ok) {
@@ -25,26 +22,18 @@ window.onload = async function () {
 
             artistas = await res.json();
 
-            // 🔥 3. Guardar en localStorage
             localStorage.setItem('artistas', JSON.stringify(artistas));
         }
 
-        console.log(artistas);
-
-        // 🔥 PAGINACIÓN
         datosGlobales = artistas;
         renderizarPagina();
 
-        // 🔥 EVENTOS (delegación)
+        // Solo dejamos eliminar aquí
         contenedor.addEventListener('click', async function (e) {
 
             const id = e.target.getAttribute('id');
 
-            if (e.target.classList.contains('btn-editar')) {
-                window.location.href = `editarArtistas.html?id=${id}`;
-            }
-
-            else if (e.target.classList.contains('btn-eliminar')) {
+            if (e.target.classList.contains('btn-eliminar')) {
 
                 if (!confirm("¿Seguro que quieres eliminar este artista?")) return;
 
@@ -56,7 +45,6 @@ window.onload = async function () {
                     if (resEliminar.ok) {
                         alert("Artista eliminado correctamente");
 
-                        // 🔥 limpiar cache
                         localStorage.removeItem('artistas');
 
                         location.reload();
@@ -78,7 +66,6 @@ window.onload = async function () {
 };
 
 
-// 🔥 FUNCIÓN DE PAGINACIÓN
 async function renderizarPagina() {
     const contenedor = document.getElementById('infoArtistas');
     contenedor.innerHTML = '';
@@ -94,7 +81,6 @@ async function renderizarPagina() {
 }
 
 
-// 🔥 BOTONES DE PAGINACIÓN
 function renderBotones() {
     const contenedor = document.getElementById('infoArtistas');
 
@@ -104,9 +90,9 @@ function renderBotones() {
     divBotones.style.marginTop = "20px";
 
     divBotones.innerHTML = `
-        <button id="anterior">⬅ Anterior</button>
+        <button id="anterior">Anterior</button>
         <span style="margin: 0 10px;"> Página ${pagina} de ${totalPaginas} </span>
-        <button id="siguiente">Siguiente ➡</button>
+        <button id="siguiente">Siguiente</button>
     `;
 
     contenedor.appendChild(divBotones);
@@ -127,7 +113,6 @@ function renderBotones() {
 }
 
 
-// 🔥 FUNCIÓN PARA PINTAR ARTISTAS
 async function pintarArtistas(artistas) {
     const contenedor = document.getElementById('infoArtistas');
 
@@ -143,9 +128,7 @@ async function pintarArtistas(artistas) {
             <h4>Álbumes:</h4>
         `;
 
-        // 🔥 traer álbumes
         if (artista.albumes_ids && artista.albumes_ids.length > 0) {
-
             for (const id_album of artista.albumes_ids) {
                 try {
                     const resAlbum = await fetch(`http://127.0.0.1:8000/v1/album/${id_album}`);
@@ -155,19 +138,17 @@ async function pintarArtistas(artistas) {
                     const album = await resAlbum.json();
 
                     htmlArtista += `<p>- ${album.nombreAlbum} (${album.generoAlbum})</p>`;
-
                 } catch {
                     htmlArtista += `<p>- Error al cargar álbum</p>`;
                 }
             }
-
         } else {
             htmlArtista += `<p>No tiene álbumes</p>`;
         }
 
         htmlArtista += `
-            <button class="btn-editar" id="${artista.id}">Editar artista</button>
-            <button class="btn-eliminar" id="${artista.id}">Eliminar artista</button>
+            <button onclick="editarArtista(${artista.id})">Editar</button>
+            <button class="btn-eliminar" id="${artista.id}">Eliminar</button>
             <hr>
         `;
 
@@ -177,7 +158,13 @@ async function pintarArtistas(artistas) {
 }
 
 
-// 🔥 NUEVO ARTISTA (LO QUE TE FALTABA)
+// NUEVO ARTISTA
 function irANuevoArtista() {
-    window.location.href = "editarArtistas.html";
+    window.location.href = "nuevoArtista.html";
+}
+
+
+// EDITAR ARTISTA
+function editarArtista(id) {
+    window.location.href = `editarArtistas.html?id=${id}`;
 }

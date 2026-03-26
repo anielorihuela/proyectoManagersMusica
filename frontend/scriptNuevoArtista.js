@@ -6,9 +6,12 @@ window.onload = function () {
         e.preventDefault();
 
         const nombreArtista = document.getElementById("nombre").value;
+        const generoArtista = document.getElementById("genero").value || "Sin género";
+        const popularidad = document.getElementById("popularidad").value ? parseInt(document.getElementById("popularidad").value) : 0;
+        const seguidores = document.getElementById("seguidores").value ? parseInt(document.getElementById("seguidores").value) : 0;
 
         if (!nombreArtista) {
-            alert("Campo vacío");
+            alert("El nombre del artista es obligatorio");
             return;
         }
 
@@ -19,7 +22,10 @@ window.onload = function () {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombreArtista: nombreArtista
+                    nombreArtista: nombreArtista,
+                    generoArtista: generoArtista,
+                    popularidad: popularidad,
+                    seguidores: seguidores
                 })
             });
 
@@ -35,7 +41,7 @@ window.onload = function () {
 
         } catch (error) {
             console.error(error);
-            alert("Error al crear artista");
+            alert("Error al crear artista: " + error.message);
         }
     };
 };

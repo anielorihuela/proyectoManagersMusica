@@ -9,7 +9,9 @@
 
     <h1>Editar Artista</h1>
 
+    <!-- 🔥 FORM CORRECTO -->
     <form id="formEditarArtista">
+
         <label>Nombre</label>
         <input type="text" id="nombreArtista"><br><br>
 
@@ -28,11 +30,15 @@
         <label>IDs de álbumes (separados por coma)</label>
         <input type="text" id="albumes_ids"><br><br>
 
-        <button type="button" id="btnGuardar">Guardar cambios</button>
+        <!-- 🔥 BOTÓN CORREGIDO -->
+        <button type="submit">Guardar cambios</button>
+
     </form>
 
-    <div id="formEditarArtista"></div>
+    <!-- 🔥 CONTENEDOR PARA ERRORES -->
+    <div id="mensaje"></div>
 
+    <!-- TU SCRIPT -->
     <script src="scriptEditarArtistas.js"></script>
 
 </body>

@@ -42,7 +42,6 @@
             transform: scale(1.05);
         }
 
-        /* NUEVO: estilo para artistas */
         .artista {
             padding: 15px;
             border-bottom: 1px solid #eee;
@@ -54,7 +53,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-<!--  NAVBAR -->
+<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="nav-link" href="index.html">Managers música</a>
@@ -97,7 +96,11 @@
             <h5 class="mb-0">
                 Lista de artistas
             </h5>
-            <button class="btn btn-primary">+ Nuevo artista</button>
+
+            <!-- 🔥 BOTÓN FUNCIONANDO -->
+            <button class="btn btn-primary" onclick="irANuevoArtista()">
+                + Nuevo artista
+            </button>
         </div>
 
         <!-- AQUÍ SE INSERTA TODO DESDE JS -->
@@ -105,6 +108,13 @@
 
     </div>
 </div>
+
+<!-- 🔥 FUNCIÓN PARA REDIRECCIÓN -->
+<script>
+function irANuevoArtista() {
+    window.location.href = "editarArtistas.html";
+}
+</script>
 
 <!-- TU SCRIPT -->
 <script src="scriptArtistas.js"></script>

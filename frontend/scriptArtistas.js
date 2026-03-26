@@ -31,7 +31,7 @@ window.onload = async function () {
 
         console.log(artistas);
 
-        // 🔥 PAGINACIÓN (ORDEN CORRECTO)
+        // 🔥 PAGINACIÓN
         datosGlobales = artistas;
         renderizarPagina();
 
@@ -94,7 +94,7 @@ async function renderizarPagina() {
 }
 
 
-// 🔥 BOTONES DE PAGINACIÓN (AQUÍ VA EL PASO 5 BIEN HECHO)
+// 🔥 BOTONES DE PAGINACIÓN
 function renderBotones() {
     const contenedor = document.getElementById('infoArtistas');
 
@@ -111,7 +111,6 @@ function renderBotones() {
 
     contenedor.appendChild(divBotones);
 
-    // 🔥 EVENTOS (PASO 5 CORRECTO)
     document.getElementById('anterior').onclick = () => {
         if (pagina > 1) {
             pagina--;
@@ -175,4 +174,10 @@ async function pintarArtistas(artistas) {
         div.innerHTML = htmlArtista;
         contenedor.appendChild(div);
     }
+}
+
+
+// 🔥 NUEVO ARTISTA (LO QUE TE FALTABA)
+function irANuevoArtista() {
+    window.location.href = "editarArtistas.html";
 }

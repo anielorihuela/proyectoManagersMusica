@@ -6,10 +6,20 @@
 </head>
 <body>
 
+    <!-- 🔥 BOTÓN PARA REGRESAR -->
+    <button onclick="window.location.href='artistas.html'">
+        ← Volver a artistas
+    </button>
+
     <h1>Nuevo Artista</h1>
 
     <form id="formArtista">
-        <input type="text" id="nombre" placeholder="Nombre del artista">
+        <input 
+            type="text" 
+            id="nombre" 
+            placeholder="Nombre del artista"
+            required
+        >
         <br><br>
 
         <button type="submit">Guardar</button>
@@ -17,13 +27,14 @@
 
     <p id="mensaje"></p>
 
-    <!-- PASO 4: onload -->
+    <!-- 🔥 PASO 4: onload -->
     <script>
         window.onload = function() {
             console.log("Página de nuevo artista cargada correctamente");
         };
     </script>
 
+    <!-- 🔥 TU SCRIPT -->
     <script src="scriptNuevoArtista.js"></script>
 
 </body>

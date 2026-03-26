@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+<<<<<<< HEAD
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Artista</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -193,5 +194,47 @@
     </script>
 
     <script src="scriptNuevoArtista.js"></script>
+=======
+    <title>Nuevo Artista</title>
+</head>
+<body>
+
+    <button onclick="window.location.href='artistas.html'">
+        ← Volver a artistas
+    </button>
+
+    <h1>Nuevo Artista</h1>
+
+    <form id="formArtista">
+        <input 
+            type="text" 
+            id="nombre" 
+            placeholder="Nombre del artista"
+            required
+        >
+        <br><br>
+
+        <h3>Álbum</h3>
+        <input 
+            type="text" 
+            id="album" 
+            placeholder="Nombre del álbum"
+        >
+        <br><br>
+
+        <h3>Canción</h3>
+        <input 
+            type="text" 
+            id="cancion" 
+            placeholder="Nombre de la canción"
+        >
+        <br><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+
+    <script src="scriptNuevoArtista.js"></script>
+
+>>>>>>> 17433dce3d152d8d2098ffa399683e4e68642482
 </body>
 </html>

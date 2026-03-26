@@ -22,6 +22,197 @@ canciones: dict[UUID, dict] = {}
 conciertos: dict[UUID, dict] = {}
 venues: dict[UUID, dict] = {}
 
+# --- DATOS PREDETERMINADOS ---
+
+# Venues
+venue1_id = generar_guid()
+venue2_id = generar_guid()
+venue3_id = generar_guid()
+venue4_id = generar_guid()
+venues[venue1_id] = {
+    "id": venue1_id,
+    "nombreVenue": "Foro Sol",
+    "ubicacion": "Ciudad de México",
+    "capacidad": 50000
+}
+venues[venue2_id] = {
+    "id": venue2_id,
+    "nombreVenue": "Auditorio Nacional",
+    "ubicacion": "Ciudad de México",
+    "capacidad": 10000
+}
+venues[venue3_id] = {
+    "id": venue3_id,
+    "nombreVenue": "Palacio de los Deportes",
+    "ubicacion": "Madrid, España",
+    "capacidad": 18000
+}
+venues[venue4_id] = {
+    "id": venue4_id,
+    "nombreVenue": "Madison Square Garden",
+    "ubicacion": "Nueva York, EE.UU.",
+    "capacidad": 20000
+}
+
+# Canciones
+cancion1_id = generar_guid()
+cancion2_id = generar_guid()
+cancion3_id = generar_guid()
+cancion4_id = generar_guid()
+cancion5_id = generar_guid()
+cancion6_id = generar_guid()
+canciones[cancion1_id] = {
+    "id": cancion1_id,
+    "nombreCancion": "Bohemian Rhapsody",
+    "duracionEnSegundos": 354
+}
+canciones[cancion2_id] = {
+    "id": cancion2_id,
+    "nombreCancion": "Imagine",
+    "duracionEnSegundos": 183
+}
+canciones[cancion3_id] = {
+    "id": cancion3_id,
+    "nombreCancion": "Billie Jean",
+    "duracionEnSegundos": 294
+}
+canciones[cancion4_id] = {
+    "id": cancion4_id,
+    "nombreCancion": "Like a Rolling Stone",
+    "duracionEnSegundos": 370
+}
+canciones[cancion5_id] = {
+    "id": cancion5_id,
+    "nombreCancion": "Hotel California",
+    "duracionEnSegundos": 391
+}
+canciones[cancion6_id] = {
+    "id": cancion6_id,
+    "nombreCancion": "Smells Like Teen Spirit",
+    "duracionEnSegundos": 301
+}
+
+# Álbumes
+album1_id = generar_guid()
+album2_id = generar_guid()
+album3_id = generar_guid()
+album4_id = generar_guid()
+album5_id = generar_guid()
+albumes[album1_id] = {
+    "id": album1_id,
+    "nombreAlbum": "A Night at the Opera",
+    "generoAlbum": "Rock",
+    "canciones_ids": [cancion1_id]
+}
+albumes[album2_id] = {
+    "id": album2_id,
+    "nombreAlbum": "Imagine",
+    "generoAlbum": "Pop",
+    "canciones_ids": [cancion2_id]
+}
+albumes[album3_id] = {
+    "id": album3_id,
+    "nombreAlbum": "Thriller",
+    "generoAlbum": "Pop",
+    "canciones_ids": [cancion3_id]
+}
+albumes[album4_id] = {
+    "id": album4_id,
+    "nombreAlbum": "Highway 61 Revisited",
+    "generoAlbum": "Rock",
+    "canciones_ids": [cancion4_id]
+}
+albumes[album5_id] = {
+    "id": album5_id,
+    "nombreAlbum": "Hotel California",
+    "generoAlbum": "Rock",
+    "canciones_ids": [cancion5_id]
+}
+
+# Conciertos
+concierto1_id = generar_guid()
+concierto2_id = generar_guid()
+concierto3_id = generar_guid()
+concierto4_id = generar_guid()
+concierto5_id = generar_guid()
+conciertos[concierto1_id] = {
+    "id": concierto1_id,
+    "fecha": "2023-12-15",
+    "venue_id": venue1_id,
+    "costoBoleto": 1500,
+    "estado": "programado"
+}
+conciertos[concierto2_id] = {
+    "id": concierto2_id,
+    "fecha": "2023-11-20",
+    "venue_id": venue2_id,
+    "costoBoleto": 2000,
+    "estado": "programado"
+}
+conciertos[concierto3_id] = {
+    "id": concierto3_id,
+    "fecha": "2024-01-10",
+    "venue_id": venue3_id,
+    "costoBoleto": 1800,
+    "estado": "programado"
+}
+conciertos[concierto4_id] = {
+    "id": concierto4_id,
+    "fecha": "2024-02-28",
+    "venue_id": venue4_id,
+    "costoBoleto": 2500,
+    "estado": "programado"
+}
+conciertos[concierto5_id] = {
+    "id": concierto5_id,
+    "fecha": "2024-03-15",
+    "venue_id": venue1_id,
+    "costoBoleto": 1200,
+    "estado": "programado"
+}
+
+# Artistas
+artista1_id = generar_guid()
+artista2_id = generar_guid()
+artista3_id = generar_guid()
+artista4_id = generar_guid()
+artistas[artista1_id] = {
+    "id": artista1_id,
+    "nombreArtista": "Queen",
+    "generoArtista": "Rock",
+    "popularidad": 98,
+    "seguidores": 25000000,
+    "conciertos_ids": [concierto1_id, concierto5_id],
+    "albumes_ids": [album1_id]
+}
+artistas[artista2_id] = {
+    "id": artista2_id,
+    "nombreArtista": "John Lennon",
+    "generoArtista": "Pop",
+    "popularidad": 95,
+    "seguidores": 15000000,
+    "conciertos_ids": [concierto2_id],
+    "albumes_ids": [album2_id]
+}
+artistas[artista3_id] = {
+    "id": artista3_id,
+    "nombreArtista": "Michael Jackson",
+    "generoArtista": "Pop",
+    "popularidad": 99,
+    "seguidores": 30000000,
+    "conciertos_ids": [concierto3_id],
+    "albumes_ids": [album3_id]
+}
+artistas[artista4_id] = {
+    "id": artista4_id,
+    "nombreArtista": "Bob Dylan",
+    "generoArtista": "Rock/Folk",
+    "popularidad": 92,
+    "seguidores": 10000000,
+    "conciertos_ids": [concierto4_id],
+    "albumes_ids": [album4_id]
+}
+
 #POST
 @app.post("/v1/artista", 
           response_model=ArtistaRes, 
@@ -229,3 +420,15 @@ async def put_concierto(id_concierto:UUID, cambio:ConciertoPut):
     
     return concierto
 
+#DELETE
+@app.delete("/v1/artista/{id_artista}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_artista(id_artista: UUID):
+    if id_artista not in artistas:
+        raise HTTPException(status_code=404, detail="Artista no encontrado")
+    del artistas[id_artista]
+
+@app.delete("/v1/concierto/{id_concierto}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_concierto(id_concierto: UUID):
+    if id_concierto not in conciertos:
+        raise HTTPException(status_code=404, detail="Concierto no encontrado")
+    del conciertos[id_concierto]

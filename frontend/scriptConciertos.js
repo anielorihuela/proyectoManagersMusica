@@ -17,7 +17,7 @@ window.onload = async function () {
             console.log('Cargando desde localStorage', artistas);
 
         } else {
-            // 🔽 2. Fetch si no hay datos
+            // 🔽 2. Fetch (SÍ es artistas porque así trabajas conciertos)
             const res = await fetch('http://127.0.0.1:8000/v1/artistas');
 
             if (!res.ok) {
@@ -30,24 +30,11 @@ window.onload = async function () {
             localStorage.setItem('conciertos', JSON.stringify(artistas));
         }
 
-        // 🔥 PASO 2 — guardar datos
+        // 🔥 Guardar datos globales
         datosGlobales = artistas;
+
+        // 🔥 Render inicial
         renderizarPagina();
-
-        // 🔥 PASO 5 — EVENTOS DE PAGINACIÓN
-        document.getElementById('anterior').onclick = () => {
-            if (pagina > 1) {
-                pagina--;
-                renderizarPagina();
-            }
-        };
-
-        document.getElementById('siguiente').onclick = () => {
-            if (pagina * porPagina < datosGlobales.length) {
-                pagina++;
-                renderizarPagina();
-            }
-        };
 
         // 🔥 EVENTOS (editar / eliminar)
         contenedor.addEventListener('click', async function(e) {
@@ -91,7 +78,8 @@ window.onload = async function () {
 };
 
 
-// 🔥 PASO 3 — FUNCIÓN DE PAGINACIÓN
+
+// 🔥 FUNCIÓN DE PAGINACIÓN
 async function renderizarPagina() {
     const contenedor = document.getElementById('tablaConciertos');
     contenedor.innerHTML = '';
@@ -102,7 +90,49 @@ async function renderizarPagina() {
     const datosPaginados = datosGlobales.slice(inicio, fin);
 
     await pintarConciertos(datosPaginados);
+
+    renderBotones(); // 🔥 IMPORTANTE
 }
+
+
+
+// 🔥 BOTONES DE PAGINACIÓN
+function renderBotones() {
+    const tabla = document.getElementById('tablaConciertos');
+
+    // evitar duplicados
+    const existente = document.getElementById('paginacion');
+    if (existente) existente.remove();
+
+    const totalPaginas = Math.ceil(datosGlobales.length / porPagina);
+
+    const div = document.createElement('div');
+    div.id = 'paginacion';
+    div.style.marginTop = "20px";
+
+    div.innerHTML = `
+        <button id="anterior">⬅ Anterior</button>
+        <span style="margin: 0 10px;"> Página ${pagina} de ${totalPaginas} </span>
+        <button id="siguiente">Siguiente ➡</button>
+    `;
+
+    tabla.parentNode.appendChild(div);
+
+    document.getElementById('anterior').onclick = () => {
+        if (pagina > 1) {
+            pagina--;
+            renderizarPagina();
+        }
+    };
+
+    document.getElementById('siguiente').onclick = () => {
+        if (pagina * porPagina < datosGlobales.length) {
+            pagina++;
+            renderizarPagina();
+        }
+    };
+}
+
 
 
 // 🔥 FUNCIÓN PARA PINTAR CONCIERTOS

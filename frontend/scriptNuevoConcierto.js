@@ -1,11 +1,11 @@
 document.getElementById("formConcierto").onsubmit = async function(e) {
     e.preventDefault();
 
-    const lugar = document.getElementById("lugar").value;
-    const fecha = document.getElementById("fecha").value;
+    const lugar = document.getElementById("lugar").value.trim();
+    const fecha = document.getElementById("fecha").value.trim();
 
     if (!lugar || !fecha) {
-        alert("Campos incompletos");
+        alert("Todos los campos son obligatorios");
         return;
     }
 
@@ -19,6 +19,9 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
         });
 
         if (!res.ok) throw new Error("Error al crear concierto");
+
+        const data = await res.json();
+        console.log("Respuesta:", data);
 
         alert("Concierto creado");
 

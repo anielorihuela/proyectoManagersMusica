@@ -6,7 +6,6 @@
 </head>
 <body>
 
-    <!-- 🔥 BOTÓN PARA REGRESAR -->
     <button onclick="window.location.href='artistas.html'">
         ← Volver a artistas
     </button>
@@ -22,19 +21,25 @@
         >
         <br><br>
 
+        <h3>Álbum</h3>
+        <input 
+            type="text" 
+            id="album" 
+            placeholder="Nombre del álbum"
+        >
+        <br><br>
+
+        <h3>Canción</h3>
+        <input 
+            type="text" 
+            id="cancion" 
+            placeholder="Nombre de la canción"
+        >
+        <br><br>
+
         <button type="submit">Guardar</button>
     </form>
 
-    <p id="mensaje"></p>
-
-    <!-- 🔥 PASO 4: onload -->
-    <script>
-        window.onload = function() {
-            console.log("Página de nuevo artista cargada correctamente");
-        };
-    </script>
-
-    <!-- 🔥 TU SCRIPT -->
     <script src="scriptNuevoArtista.js"></script>
 
 </body>

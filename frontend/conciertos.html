@@ -79,7 +79,11 @@
             <h5 class="mb-0">
                 Lista de conciertos
             </h5>
-            <button class="btn btn-primary">+ Nuevo concierto</button>
+
+            <!-- 🔥 BOTÓN CORREGIDO -->
+            <button class="btn btn-primary" onclick="window.location.href='nuevoConcierto.html'">
+                + Nuevo concierto
+            </button>
         </div>
 
         <!-- 🔥 TABLA -->
@@ -97,7 +101,7 @@
             </tbody>
         </table>
 
-        <!-- 🔥 BOTONES DE PAGINACIÓN (PASO 4) -->
+        <!-- 🔥 BOTONES DE PAGINACIÓN -->
         <div class="d-flex justify-content-center mt-3">
             <button id="anterior" class="btn btn-outline-dark me-2">⬅ Anterior</button>
             <button id="siguiente" class="btn btn-outline-dark">Siguiente ➡</button>

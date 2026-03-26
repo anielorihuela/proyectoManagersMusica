@@ -6,6 +6,8 @@ window.onload = function () {
         e.preventDefault();
 
         const nombre = document.getElementById("nombre").value;
+        const album = document.getElementById("album").value;
+        const cancion = document.getElementById("cancion").value;
 
         if (!nombre) {
             alert("Campo vacío");
@@ -19,7 +21,9 @@ window.onload = function () {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombreArtista: nombre
+                    nombreArtista: nombre,
+                    album: album,
+                    cancion: cancion
                 })
             });
 
@@ -29,10 +33,8 @@ window.onload = function () {
 
             alert("Artista creado correctamente");
 
-            // limpiar cache para que se recargue la lista
             localStorage.removeItem("artistas");
 
-            // redirigir
             window.location.href = "artistas.html";
 
         } catch (error) {

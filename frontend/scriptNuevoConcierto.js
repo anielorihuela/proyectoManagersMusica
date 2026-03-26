@@ -1,21 +1,47 @@
+window.onload = async function() {
+    // Cargar venues
+    try {
+        const res = await fetch("http://127.0.0.1:8000/v1/venues");
+        if (!res.ok) throw new Error("Error al cargar venues");
+        
+        const venues = await res.json();
+        const selectVenue = document.getElementById("venue_id");
+        
+        venues.forEach(venue => {
+            const option = document.createElement("option");
+            option.value = venue.id;
+            option.textContent = `${venue.nombreVenue} - ${venue.ubicacion}`;
+            selectVenue.appendChild(option);
+        });
+    } catch (error) {
+        console.error(error);
+        alert("Error al cargar venues: " + error.message);
+    }
+};
+
 document.getElementById("formConcierto").onsubmit = async function(e) {
     e.preventDefault();
 
-    const lugar = document.getElementById("lugar").value.trim();
+    const venue_id = document.getElementById("venue_id").value.trim();
     const fecha = document.getElementById("fecha").value.trim();
+    const costoBoleto = document.getElementById("costoBoleto").value.trim();
 
-    if (!lugar || !fecha) {
+    if (!venue_id || !fecha || !costoBoleto) {
         alert("Todos los campos son obligatorios");
         return;
     }
 
     try {
-        const res = await fetch("http://127.0.0.1:3000/conciertos", {
+        const res = await fetch("http://127.0.0.1:8000/v1/concierto", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ lugar, fecha })
+            body: JSON.stringify({
+                venue_id: venue_id,
+                fecha: fecha,
+                costoBoleto: parseInt(costoBoleto)
+            })
         });
 
         if (!res.ok) throw new Error("Error al crear concierto");
@@ -23,12 +49,14 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
         const data = await res.json();
         console.log("Respuesta:", data);
 
-        alert("Concierto creado");
+        alert("Concierto creado correctamente");
+
+        localStorage.removeItem("conciertos");
 
         window.location.href = "conciertos.html";
 
     } catch (error) {
         console.error(error);
-        alert("Error en la petición");
+        alert("Error: " + error.message);
     }
 };

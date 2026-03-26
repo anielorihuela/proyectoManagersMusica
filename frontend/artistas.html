@@ -35,6 +35,49 @@
 
         body {
             background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .navbar {
+            background-color: #7a4a4a !important;
+        }
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .table {
+            color: #e8e8e8;
+        }
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: rgba(232,160,160,0.08);
+            color: #e8e8e8;
+        }
+        body.dark-mode .text-muted {
+            color: #a0a0b8 !important;
+        }
+        body.dark-mode .badge.bg-secondary {
+            background-color: #4a4a6a !important;
+        }
+        body.dark-mode .btn-outline-primary {
+            color: #8cb4e8;
+            border-color: #8cb4e8;
+        }
+        body.dark-mode .btn-outline-primary:hover {
+            background-color: #8cb4e8;
+            color: #1a1a2e;
+        }
+        body.dark-mode .btn-outline-danger {
+            color: #e88c8c;
+            border-color: #e88c8c;
+        }
+        body.dark-mode .btn-outline-danger:hover {
+            background-color: #e88c8c;
+            color: #1a1a2e;
         }
 
         .btn:hover{
@@ -120,6 +163,24 @@
             </div>
         </div>
 
+        <script>
+        const themeToggle = document.getElementById('themeToggle');
+
+        function applyTheme(dark) {
+            document.body.classList.toggle('dark-mode', dark);
+            themeToggle.textContent = dark ? 'Light mode' : 'Dark mode';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+            applyTheme(!isDark);
+        });
+
+        window.addEventListener('load', () => {
+            applyTheme(localStorage.getItem('theme') === 'dark');
+        });
+        </script>
         <script src="scriptArtistas.js"></script>
     </body>
 </html>

@@ -1,4 +1,9 @@
-window.onload = async function conciertos() {
+// 🔥 VARIABLES DE PAGINACIÓN 
+let pagina = 1;
+const porPagina = 5;
+let datosGlobales = [];
+
+window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
@@ -13,22 +18,38 @@ window.onload = async function conciertos() {
 
         } else {
             // 🔽 2. Fetch si no hay datos
-            const artistasRes = await fetch('http://127.0.0.1:8000/v1/artistas');
+            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
 
-            if (!artistasRes.ok) {
+            if (!res.ok) {
                 throw new Error('Error al cargar artistas');
             }
 
-            artistas = await artistasRes.json();
+            artistas = await res.json();
 
             // 🔥 3. Guardar en localStorage
             localStorage.setItem('conciertos', JSON.stringify(artistas));
         }
 
-        // 🔥 4. Pintar conciertos
-        await pintarConciertos(artistas);
+        // 🔥 PASO 2 — guardar datos
+        datosGlobales = artistas;
+        renderizarPagina();
 
-        // 🔥 5. Eventos
+        // 🔥 PASO 5 — EVENTOS DE PAGINACIÓN
+        document.getElementById('anterior').onclick = () => {
+            if (pagina > 1) {
+                pagina--;
+                renderizarPagina();
+            }
+        };
+
+        document.getElementById('siguiente').onclick = () => {
+            if (pagina * porPagina < datosGlobales.length) {
+                pagina++;
+                renderizarPagina();
+            }
+        };
+
+        // 🔥 EVENTOS (editar / eliminar)
         contenedor.addEventListener('click', async function(e) {
 
             const id = e.target.getAttribute('data-id');
@@ -49,10 +70,9 @@ window.onload = async function conciertos() {
                     if (resEliminar.ok) {
                         alert("Concierto eliminado correctamente");
 
-                        // 🔥 limpiar cache
                         localStorage.removeItem('conciertos');
-
                         location.reload();
+
                     } else {
                         throw new Error();
                     }
@@ -71,11 +91,23 @@ window.onload = async function conciertos() {
 };
 
 
-// 🔥 FUNCIÓN SEPARADA (igual que en artistas)
+// 🔥 PASO 3 — FUNCIÓN DE PAGINACIÓN
+async function renderizarPagina() {
+    const contenedor = document.getElementById('tablaConciertos');
+    contenedor.innerHTML = '';
+
+    const inicio = (pagina - 1) * porPagina;
+    const fin = inicio + porPagina;
+
+    const datosPaginados = datosGlobales.slice(inicio, fin);
+
+    await pintarConciertos(datosPaginados);
+}
+
+
+// 🔥 FUNCIÓN PARA PINTAR CONCIERTOS
 async function pintarConciertos(artistas) {
     const contenedor = document.getElementById('tablaConciertos');
-
-    contenedor.innerHTML = "";
 
     for (const artista of artistas) {
 

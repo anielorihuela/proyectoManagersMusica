@@ -1,3 +1,8 @@
+// 🔥 VARIABLES DE PAGINACIÓN
+let pagina = 1;
+const porPagina = 5;
+let datosGlobales = [];
+
 window.onload = async function () {
     const contenedor = document.getElementById('infoArtistas');
 
@@ -26,10 +31,11 @@ window.onload = async function () {
 
         console.log(artistas);
 
-        // 🔥 4. Pintar artistas
-        await pintarArtistas(artistas);
+        // 🔥 PAGINACIÓN (ORDEN CORRECTO)
+        datosGlobales = artistas;
+        renderizarPagina();
 
-        // 🔥 5. Eventos (delegación)
+        // 🔥 EVENTOS (delegación)
         contenedor.addEventListener('click', async function (e) {
 
             const id = e.target.getAttribute('id');
@@ -72,11 +78,59 @@ window.onload = async function () {
 };
 
 
+// 🔥 FUNCIÓN DE PAGINACIÓN
+async function renderizarPagina() {
+    const contenedor = document.getElementById('infoArtistas');
+    contenedor.innerHTML = '';
+
+    const inicio = (pagina - 1) * porPagina;
+    const fin = inicio + porPagina;
+
+    const datosPaginados = datosGlobales.slice(inicio, fin);
+
+    await pintarArtistas(datosPaginados);
+
+    renderBotones();
+}
+
+
+// 🔥 BOTONES DE PAGINACIÓN (AQUÍ VA EL PASO 5 BIEN HECHO)
+function renderBotones() {
+    const contenedor = document.getElementById('infoArtistas');
+
+    const totalPaginas = Math.ceil(datosGlobales.length / porPagina);
+
+    const divBotones = document.createElement('div');
+    divBotones.style.marginTop = "20px";
+
+    divBotones.innerHTML = `
+        <button id="anterior">⬅ Anterior</button>
+        <span style="margin: 0 10px;"> Página ${pagina} de ${totalPaginas} </span>
+        <button id="siguiente">Siguiente ➡</button>
+    `;
+
+    contenedor.appendChild(divBotones);
+
+    // 🔥 EVENTOS (PASO 5 CORRECTO)
+    document.getElementById('anterior').onclick = () => {
+        if (pagina > 1) {
+            pagina--;
+            renderizarPagina();
+        }
+    };
+
+    document.getElementById('siguiente').onclick = () => {
+        if (pagina * porPagina < datosGlobales.length) {
+            pagina++;
+            renderizarPagina();
+        }
+    };
+}
+
+
 // 🔥 FUNCIÓN PARA PINTAR ARTISTAS
 async function pintarArtistas(artistas) {
     const contenedor = document.getElementById('infoArtistas');
-
-    contenedor.innerHTML = '';
 
     for (const artista of artistas) {
         const div = document.createElement('div');

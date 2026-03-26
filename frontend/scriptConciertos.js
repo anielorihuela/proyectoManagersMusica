@@ -41,7 +41,7 @@ window.onload = async function () {
             const id = e.target.getAttribute('data-id');
 
             if (e.target.classList.contains('btn-editar')) {
-                window.location.href = `editarConcierto.html?id=${id}`;
+                window.location.href = `editarConciertos.html?id=${id}`;
             }
 
             else if (e.target.classList.contains('btn-eliminar')) {

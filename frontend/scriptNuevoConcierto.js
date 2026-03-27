@@ -4,7 +4,7 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
     const lugar = document.getElementById("lugar").value.trim();
     const fecha = document.getElementById("fecha").value.trim();
 
-    if (!fecha || !fecha) {
+    if (!fecha || !costoBoleto) {
         alert("Campos faltantes");
         return;
     }

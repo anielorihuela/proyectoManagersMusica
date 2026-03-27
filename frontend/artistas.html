@@ -651,6 +651,9 @@ document.getElementById('searchInput').addEventListener('input', function () {
 function irANuevoArtista() { window.location.href = 'nuevoArtista.html'; }
 function editarArtista(id) { window.location.href = `editarArtistas.html?id=${id}`; }
 
+/* ══════════════════════════════════════════════════════════
+   ÁLBUMES
+══════════════════════════════════════════════════════════ */
 async function cargarAlbumes() {
     const contenedor = document.getElementById('infoAlbumes');
     try {
@@ -688,6 +691,9 @@ async function cargarAlbumes() {
     }
 }
 
+/* ══════════════════════════════════════════════════════════
+   CANCIONES
+══════════════════════════════════════════════════════════ */
 async function cargarCanciones() {
     const contenedor = document.getElementById('infoCanciones');
     try {

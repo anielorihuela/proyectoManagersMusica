@@ -4,43 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Artista</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
-<body>
-    <button onclick="window.location.href='artistas.html'" style="margin: 10px;">
-        ← Volver a artistas
-    </button>
-
-    <h1 style="text-align: center; margin: 20px;">Editar Artista</h1>
-
-    <form id="formEditarArtista" style="max-width: 500px; margin: 0 auto; padding: 20px;">
-
-        <label>Nombre</label>
-        <input type="text" id="nombre" placeholder="Nombre del artista" required><br><br>
-
-        <label>Género</label>
-        <input type="text" id="generoArtista" placeholder="Género"><br><br>
-
-        <label>Popularidad</label>
-        <input type="number" id="popularidad" min="0" max="100"><br><br>
-
-        <label>Seguidores</label>
-        <input type="number" id="seguidores" min="0"><br><br>
-
-        <label>IDs de conciertos (separados por comas)</label>
-        <input type="text" id="conciertos_ids"><br><br>
-
-        <label>IDs de álbumes (separados por comas)</label>
-        <input type="text" id="albumes_ids"><br><br>
-
-        <label>Tipo de edición:</label>
-        <select id="tipoMetodo">
-            <option value="PATCH">Editar parcial (PATCH)</option>
-            <option value="PUT">Editar todo (PUT)</option>
-        </select>
-        <br><br>
-
-        <button type="submit" id="btnGuardar">Guardar cambios</button>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -135,7 +98,6 @@
     <div class="container">
         <a class="nav-link" href="index.html">Managers música</a>
 
-    <script src="scriptEditarArtistas.js"></script>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
             <span class="navbar-toggler-icon"></span>
         </button>

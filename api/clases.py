@@ -11,7 +11,7 @@ class VenueRes(BaseModel):
 class ConciertoRes(BaseModel):
     id: UUID
     fecha: str
-    venue_id: UUID #un concierto tiene un venue
+    venue_id: UUID | None = None #un concierto tiene un venue opcional
     costoBoleto: int
     estado: str #los estados son "programado | realizado | cancelado"
 
@@ -44,7 +44,7 @@ class Venue(BaseModel):
     
 class Concierto(BaseModel):
     fecha: str
-    venue_id: UUID 
+    venue_id: UUID | None = None
     costoBoleto: int
 
 class Cancion(BaseModel):

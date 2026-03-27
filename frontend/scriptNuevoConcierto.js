@@ -4,8 +4,8 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
     const lugar = document.getElementById("lugar").value.trim();
     const fecha = document.getElementById("fecha").value.trim();
 
-    if (!fecha || !venue_id || !fecha) {
-        alert("Todos los campos son obligatorios");
+    if (!fecha || !fecha) {
+        alert("Campos faltantes");
         return;
     }
 

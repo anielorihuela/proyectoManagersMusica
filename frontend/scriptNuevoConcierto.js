@@ -1,67 +1,58 @@
-window.onload = async function() {
-    // Cargar venues
-    try {
-        const res = await fetch("http://127.0.0.1:8000/v1/venues");
-        if (!res.ok) throw new Error("Error al cargar venues");
-        
-        const venues = await res.json();
-        const selectVenue = document.getElementById("venue_id");
-        
-        venues.forEach(venue => {
-            const option = document.createElement("option");
-            option.value = venue.id;
-            option.textContent = `${venue.nombreVenue} - ${venue.ubicacion}`;
-            selectVenue.appendChild(option);
-        });
-    } catch (error) {
-        console.error(error);
-        alert("Error al cargar venues: " + error.message);
-    }
-};
+const API_BASE = 'http://127.0.0.1:8000/v1';
 
-document.getElementById("formConcierto").onsubmit = async function(e) {
+const formConcierto = document.getElementById('formConcierto');
+
+formConcierto.addEventListener('submit', crearConcierto);
+
+async function crearConcierto(e) {
     e.preventDefault();
 
-    const venue_id = document.getElementById("venue_id").value.trim();
-    const fecha = document.getElementById("fecha").value.trim();
-    const costoBoleto = document.getElementById("costoBoleto").value.trim();
+    const venueId = document.getElementById('venue_id').value.trim();
+    const fecha = document.getElementById('fecha').value.trim();
+    const costoTexto = document.getElementById('costoBoleto').value.trim();
 
-    if (!venue_id || !fecha || !costoBoleto) {
-        alert("Todos los campos son obligatorios");
-    if (!fecha || !costoBoleto) {
-        alert("Campos faltantes");
+    if (fecha === '' || costoTexto === '') {
+        alert('Fecha y costo del boleto son obligatorios.');
         return;
     }
 
+    const costoBoleto = parseInt(costoTexto);
+
+    if (Number.isNaN(costoBoleto) || costoBoleto < 0) {
+        alert('El costo del boleto debe ser un número válido.');
+        return;
+    }
+
+    const nuevoConcierto = {
+        fecha: fecha,
+        costoBoleto: costoBoleto
+    };
+
+    if (venueId !== '') {
+        nuevoConcierto.venue_id = venueId;
+    }
+
     try {
-        const res = await fetch("http://127.0.0.1:8000/v1/concierto", {
-            method: "POST",
+        const res = await fetch(`${API_BASE}/concierto`, {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                venue_id: venue_id,
-                fecha: fecha,
-                costoBoleto: parseInt(costoBoleto)
-                fecha,
-                venue_id,
-                costoBoleto: parseFloat(costoBoleto)
-            })
+            body: JSON.stringify(nuevoConcierto)
         });
 
-        if (!res.ok) throw new Error("Error al crear concierto");
+        const texto = await res.text();
 
-        const data = await res.json();
-        console.log("Respuesta:", data);
+        if (!res.ok) {
+            throw new Error(`Error ${res.status}: ${texto}`);
+        }
 
-        alert("Concierto creado correctamente");
-
-        localStorage.removeItem("conciertos");
-
-        window.location.href = "conciertos.html";
+        alert('Concierto creado correctamente');
+        window.location.href = 'conciertos.html?creado=1';
 
     } catch (error) {
         console.error(error);
-        alert("Error: " + error.message);
+        alert(error.message);
     }
-};
+
+}

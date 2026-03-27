@@ -20,7 +20,7 @@ window.onload = async function () {
     }
 };
 
-document.getElementbyId("btnGuardarConcierto").addEventListener("click", async function () {
+document.getElementById("btnGuardarConcierto").addEventListener("click", async function () {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
 

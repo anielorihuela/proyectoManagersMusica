@@ -1,62 +1,56 @@
-const API_BASE = 'http://127.0.0.1:8000/v1';
+window.onload = function () {
+    const form = document.getElementById("formAlbum");
 
-const btnCrearAlbum = document.getElementById('btnCrearAlbum');
-const mensajeResultado = document.getElementById('mensajeResultado');
+    form.onsubmit = async function (e) {
+        e.preventDefault();
 
-btnCrearAlbum.addEventListener('click', crearAlbum);
+        const nombreAlbum = document.getElementById("nombreAlbum").value;
+        const generoAlbum = document.getElementById("generoAlbum").value;
+        const cancionesInput = document.getElementById("canciones_ids").value;
 
-async function crearAlbum() {
-    const nombreAlbum = document.getElementById('nombreAlbum').value.trim();
-    const generoAlbum = document.getElementById('generoAlbum').value.trim();
-    const cancionesTexto = document.getElementById('canciones_ids').value.trim();
-
-    if (nombreAlbum === '' || generoAlbum === '') {
-        mostrarMensaje('Completa nombre y género del álbum.', 'danger');
-        return;
-    }
-
-    const canciones_ids = cancionesTexto === ''
-        ? []
-        : cancionesTexto
-            .split(',')
-            .map(id => id.trim())
-            .filter(id => id !== '');
-
-    const nuevoAlbum = {
-        nombreAlbum: nombreAlbum,
-        generoAlbum: generoAlbum,
-        canciones_ids: canciones_ids
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/album`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(nuevoAlbum)
-        });
-
-        const texto = await res.text();
-
-        if (!res.ok) {
-            throw new Error(`Error ${res.status}: ${texto}`);
+        if (!nombreAlbum || !generoAlbum) {
+            alert("El nombre y género del álbum son obligatorios");
+            return;
         }
 
-        mostrarMensaje('Álbum creado correctamente.', 'success');
+        // Procesar IDs de canciones
+        let canciones_ids = [];
+        if (cancionesInput.trim()) {
+            canciones_ids = cancionesInput
+                .split(',')
+                .map(id => id.trim())
+                .filter(id => id.length > 0);
+        }
 
-        document.getElementById('nombreAlbum').value = '';
-        document.getElementById('generoAlbum').value = '';
-        document.getElementById('canciones_ids').value = '';
+        try {
+            const res = await fetch("http://127.0.0.1:8000/v1/album", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombreAlbum: nombreAlbum,
+                    generoAlbum: generoAlbum,
+                    canciones_ids: canciones_ids
+                })
+            });
 
-    } catch (error) {
-        console.error(error);
-        mostrarMensaje(error.message, 'danger');
-    }
-}
+            if (!res.ok) {
+                throw new Error("Error al guardar el álbum");
+            }
 
-function mostrarMensaje(texto, tipo) {
-    mensajeResultado.style.display = 'block';
-    mensajeResultado.className = `alert alert-${tipo} mt-3`;
-    mensajeResultado.textContent = texto;
-}
+            const data = await res.json();
+            console.log("Álbum creado:", data);
+
+            alert("Álbum creado correctamente");
+
+            localStorage.removeItem("albumes");
+
+            window.location.href = "nuevoArtista.html";
+
+        } catch (error) {
+            console.error(error);
+            alert("Error al crear álbum: " + error.message);
+        }
+    };
+};

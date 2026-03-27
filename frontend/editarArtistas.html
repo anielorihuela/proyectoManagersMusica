@@ -148,7 +148,7 @@
                 <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
             </ul>
 
-            <button class="btn btn-outline-light ms-lg-3">Dark mode</button>
+            <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
         </div>
     </div>
 </nav>
@@ -206,7 +206,130 @@
     </div>
 </div>
 
-<script src="scriptEditarArtistas.js"></script>
+<script>
+/* ── Dark mode ── */
+const themeToggle = document.getElementById('themeToggle');
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.innerText = 'Light mode';
+}
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const dark = document.body.classList.contains('dark-mode');
+    themeToggle.innerText = dark ? 'Light mode' : 'Dark mode';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+});
+
+/* ── Pre-rellenar formulario con datos actuales ── */
+window.onload = async function () {
+    const params    = new URLSearchParams(window.location.search);
+    const artistaId = params.get('id');
+
+    if (!artistaId) {
+        alert('No se especificó un artista.');
+        window.location.href = 'artistas.html';
+        return;
+    }
+
+    // Intentar cargar desde localStorage (ya disponible desde artistas.html)
+    try {
+        const guardado = localStorage.getItem('artistas');
+        if (guardado) {
+            const lista   = JSON.parse(guardado);
+            const artista = lista.find(a => String(a.id) === String(artistaId));
+            if (artista) rellenarFormulario(artista);
+        }
+    } catch { /* formulario queda vacío si no hay caché */ }
+
+    document.getElementById('formEditarArtista').onsubmit = guardar_cambios;
+};
+
+function rellenarFormulario(a) {
+    document.getElementById('nombre').value         = a.nombreArtista  ?? '';
+    document.getElementById('generoArtista').value  = a.generoArtista  ?? '';
+    document.getElementById('popularidad').value    = a.popularidad    ?? '';
+    document.getElementById('seguidores').value     = a.seguidores     ?? '';
+    document.getElementById('conciertos_ids').value = (a.conciertos_ids ?? []).join(', ');
+    document.getElementById('albumes_ids').value    = (a.albumes_ids   ?? []).join(', ');
+}
+
+function parsearIds(texto) {
+    if (!texto || !texto.trim()) return [];
+    return texto.split(',').map(s => s.trim()).filter(s => s.length > 0);
+}
+
+/* ── Guardar cambios ── */
+async function guardar_cambios(e) {
+    e.preventDefault();
+
+    const params    = new URLSearchParams(window.location.search);
+    const id        = params.get('id');
+    const metodo    = document.getElementById('tipoMetodo').value;
+    const msgEl     = document.getElementById('mensaje');
+
+    const nombreVal     = document.getElementById('nombre').value.trim();
+    const generoVal     = document.getElementById('generoArtista').value.trim();
+    const popularVal    = document.getElementById('popularidad').value.trim();
+    const seguidoresVal = document.getElementById('seguidores').value.trim();
+    const conciertosVal = parsearIds(document.getElementById('conciertos_ids').value);
+    const albumesVal    = parsearIds(document.getElementById('albumes_ids').value);
+
+    // PUT requiere nombreArtista obligatoriamente
+    if (metodo === 'PUT' && !nombreVal) {
+        msgEl.className = 'alert alert-danger mt-3';
+        msgEl.style.display = 'block';
+        msgEl.textContent = 'El nombre es obligatorio para una edición completa (PUT).';
+        return;
+    }
+
+    // Construir body según método:
+    // PUT  → todos los campos (null si vacío, para que la API los valide)
+    // PATCH → solo los campos que el usuario rellenó
+    let cambios = {};
+
+    if (metodo === 'PUT') {
+        cambios = {
+            nombreArtista:  nombreVal     || null,
+            generoArtista:  generoVal     || null,
+            popularidad:    popularVal    ? parseInt(popularVal)    : null,
+            seguidores:     seguidoresVal ? parseInt(seguidoresVal) : null,
+            conciertos_ids: conciertosVal,
+            albumes_ids:    albumesVal,
+        };
+    } else {
+        // PATCH: incluir solo campos con valor
+        if (nombreVal)     cambios.nombreArtista  = nombreVal;
+        if (generoVal)     cambios.generoArtista  = generoVal;
+        if (popularVal)    cambios.popularidad    = parseInt(popularVal);
+        if (seguidoresVal) cambios.seguidores     = parseInt(seguidoresVal);
+        if (conciertosVal.length) cambios.conciertos_ids = conciertosVal;
+        if (albumesVal.length)    cambios.albumes_ids    = albumesVal;
+    }
+
+    try {
+        const res = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, {
+            method:  metodo,
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify(cambios)
+        });
+
+        if (!res.ok) {
+            const texto = await res.text();
+            throw new Error(`${res.status}: ${texto}`);
+        }
+
+        localStorage.removeItem('artistas');
+        alert('✅ Artista actualizado correctamente');
+        window.location.href = 'artistas.html';
+
+    } catch (error) {
+        console.error(error);
+        msgEl.className = 'alert alert-danger mt-3';
+        msgEl.style.display = 'block';
+        msgEl.textContent = 'Error: ' + error.message;
+    }
+}
+</script>
 
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Concierto</title>
+    <title>Nuevo Venue</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
     <style>
@@ -103,7 +103,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
                     <li class="nav-item"><a class="nav-link" href="artistas.html">Artistas</a></li>
-                    <li class="nav-item"><a class="nav-link active" href="conciertos.html">Conciertos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
                     <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
                 </ul>
 
@@ -113,57 +113,33 @@
     </nav>
 
     <div class="container mt-5 pt-3 pb-5">
-        <h1 class="fw-bold mb-2 text-center">Editar concierto</h1>
+        <h1 class="fw-bold mb-2 text-center">Nuevo venue</h1>
         <p class="text-center text-muted mb-5">
-            Elige si quieres hacer una edición parcial o total
+            Captura la información del venue
         </p>
 
-        <div class="card p-4 shadow-sm mx-auto" style="max-width: 680px;">
+        <div class="card p-4 shadow-sm mx-auto" style="max-width: 720px;">
+            <div class="mb-3">
+                <label for="nombreVenue" class="form-label fw-semibold">Nombre del venue</label>
+                <input type="text" class="form-control" id="nombreVenue" placeholder="Nombre del venue">
+            </div>
+
+            <div class="mb-3">
+                <label for="ubicacion" class="form-label fw-semibold">Ubicación</label>
+                <input type="text" class="form-control" id="ubicacion" placeholder="Ciudad, dirección o referencia">
+            </div>
+
             <div class="mb-4">
-                <label for="tipoMetodo" class="form-label fw-semibold">Tipo de edición</label>
-                <select class="form-select" id="tipoMetodo">
-                    <option value="PATCH" selected>Edición parcial (PATCH)</option>
-                    <option value="PUT">Edición total (PUT)</option>
-                </select>
+                <label for="capacidad" class="form-label fw-semibold">Capacidad</label>
+                <input type="number" class="form-control" id="capacidad" placeholder="Ejemplo: 5000" min="1">
                 <div class="form-text">
-                    PATCH cambia solo los campos modificados. PUT reemplaza todos los campos del concierto.
+                    Ingresa el número máximo de asistentes.
                 </div>
-            </div>
-
-            <div class="mb-3">
-                <label for="fecha" class="form-label fw-semibold">Fecha</label>
-                <input type="date" class="form-control" id="fecha">
-                <div class="form-text">Se carga automáticamente la fecha actual del concierto.</div>
-            </div>
-
-            <div class="mb-3">
-                <label for="venue_id" class="form-label fw-semibold">ID del venue</label>
-                <input type="text" class="form-control" id="venue_id" placeholder="UUID del venue">
-                <div class="form-text">Escribe el UUID del venue que quieres asociar.</div>
-            </div>
-
-            <div class="mb-3">
-                <div id="infoVenue" class="form-text"></div>
-            </div>
-
-            <div class="mb-3">
-                <label for="costoBoleto" class="form-label fw-semibold">Costo del boleto</label>
-                <input type="number" class="form-control" id="costoBoleto" placeholder="Ej. 1500" min="0">
-            </div>
-
-            <div class="mb-4">
-                <label for="estado" class="form-label fw-semibold">Estado</label>
-                <select class="form-select" id="estado">
-                    <option value="">Selecciona un estado</option>
-                    <option value="programado">Programado</option>
-                    <option value="realizado">Realizado</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
             </div>
 
             <div class="d-flex gap-2 justify-content-end flex-wrap">
                 <a href="conciertos.html" class="btn btn-outline-secondary">Cancelar</a>
-                <button type="button" class="btn btn-primary" id="btnGuardarConcierto">Guardar cambios</button>
+                <button type="button" class="btn btn-primary" id="btnCrearVenue">Crear venue</button>
             </div>
 
             <div id="mensajeResultado" class="mt-3" style="display:none;"></div>
@@ -189,6 +165,6 @@
         });
     </script>
 
-    <script src="scriptEditarConcierto.js"></script>
+    <script src="scriptNuevoVenue.js"></script>
 </body>
 </html>

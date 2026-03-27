@@ -42,10 +42,171 @@
 
         <button type="submit" id="btnGuardar">Guardar cambios</button>
 
-    </form>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <div id="mensaje"></div>
+    <style>
+        .btn-outline-light{
+            border-radius: 10px;
+            border-color: white;
+        }
+
+        .card{
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover{
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar{
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
+            background-color:#c98c8c;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .navbar {
+            background-color: #7a4a4a !important;
+        }
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .form-label {
+            color: #e8e8e8;
+        }
+        body.dark-mode .form-control {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #4a4a6a;
+        }
+        body.dark-mode .form-control:focus {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #8cb4e8;
+            box-shadow: 0 0 0 0.2rem rgba(140, 180, 232, 0.25);
+        }
+        body.dark-mode .form-select {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #4a4a6a;
+        }
+        body.dark-mode .form-select:focus {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #8cb4e8;
+            box-shadow: 0 0 0 0.2rem rgba(140, 180, 232, 0.25);
+        }
+        body.dark-mode .btn-outline-primary {
+            color: #8cb4e8;
+            border-color: #8cb4e8;
+        }
+        body.dark-mode .btn-outline-primary:hover {
+            background-color: #8cb4e8;
+            color: #1a1a2e;
+        }
+        body.dark-mode .text-muted {
+            color: #a0a0b8 !important;
+        }
+
+        .btn:hover{
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="nav-link" href="index.html">Managers música</a>
 
     <script src="scriptEditarArtistas.js"></script>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="menuNavegacion">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="artistas.html">Artistas</a></li>
+                <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
+                <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
+            </ul>
+
+            <button class="btn btn-outline-light ms-lg-3">Dark mode</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-3">
+    <h1 class="fw-bold mb-4 text-center">Editar Artista</h1>
+    <p class="text-center text-muted mb-5">
+        Modifica la información del artista seleccionado
+    </p>
+
+    <div class="card p-4 shadow-sm">
+        <form id="formEditarArtista">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" placeholder="Nombre del artista">
+            </div>
+
+            <div class="mb-3">
+                <label for="generoArtista" class="form-label">Género</label>
+                <input type="text" class="form-control" id="generoArtista">
+            </div>
+
+            <div class="mb-3">
+                <label for="popularidad" class="form-label">Popularidad</label>
+                <input type="number" class="form-control" id="popularidad">
+            </div>
+
+            <div class="mb-3">
+                <label for="seguidores" class="form-label">Seguidores</label>
+                <input type="number" class="form-control" id="seguidores">
+            </div>
+
+            <div class="mb-3">
+                <label for="conciertos_ids" class="form-label">IDs de conciertos</label>
+                <input type="text" class="form-control" id="conciertos_ids">
+            </div>
+
+            <div class="mb-3">
+                <label for="albumes_ids" class="form-label">IDs de álbumes</label>
+                <input type="text" class="form-control" id="albumes_ids">
+            </div>
+
+            <div class="mb-3">
+                <label for="tipoMetodo" class="form-label">Tipo de edición:</label>
+                <select class="form-select" id="tipoMetodo">
+                    <option value="PUT">Editar todo (PUT)</option>
+                    <option value="PATCH">Editar parcial (PATCH)</option>
+                </select>
+            </div>
+
+            <button id="btnGuardar" type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+
+        <div id="mensaje" class="mt-3"></div>
+    </div>
+</div>
+
+<script src="scriptEditarArtistas.js"></script>
+
 </body>
 </html>

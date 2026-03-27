@@ -420,6 +420,22 @@ async def put_concierto(id_concierto:UUID, cambio:ConciertoPut):
     
     return concierto
 
+@app.put("/v1/artista/{id_artista}",
+         response_model=ArtistaRes)
+async def put_artista(id_artista: UUID, cambio: ArtistaPut):
+    if id_artista not in artistas:
+        raise HTTPException(status_code=404, detail="Artista no encontrado")
+
+    artista = artistas[id_artista]
+    artista["nombreArtista"] = cambio.nombreArtista
+    artista["generoArtista"] = cambio.generoArtista
+    artista["popularidad"] = cambio.popularidad
+    artista["seguidores"] = cambio.seguidores
+    artista["conciertos_ids"] = cambio.conciertos_ids
+    artista["albumes_ids"] = cambio.albumes_ids
+
+    return artista
+
 #DELETE
 @app.delete("/v1/artista/{id_artista}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_artista(id_artista: UUID):

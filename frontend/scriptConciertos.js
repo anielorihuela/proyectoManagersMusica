@@ -6,14 +6,14 @@ window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
-        const res = await fetch('http://127.0.0.1:8000/v1/artistas');
+        const res = await fetch('http://127.0.0.1:8000/v1/conciertos');
 
         if (!res.ok) {
-            throw new Error('Error al cargar artistas');
+            throw new Error('Error al cargar conciertos');
         }
 
-        const artistas = await res.json();
-        conciertosGlobales = await construirListaConciertos(artistas);
+        const conciertos = await res.json();
+        conciertosGlobales = await construirListaConciertos(conciertos);
 
         renderizarPagina();
 
@@ -23,8 +23,6 @@ window.onload = async function () {
 
             const id = boton.getAttribute('data-id');
 
-            if (e.target.classList.contains('btn-editar')) {
-                window.location.href = `editarConciertos.html?id=${id}`;
             if (boton.classList.contains('btn-editar')) {
                 window.location.href = `editarConcierto.html?id=${id}`;
             }
@@ -65,37 +63,28 @@ window.onload = async function () {
     }
 };
 
-async function construirListaConciertos(artistas) {
-    const conciertos = [];
+async function construirListaConciertos(conciertos) {
+    const listaConciertos = [];
 
-    for (const artista of artistas) {
-        if (!artista.conciertos_ids || artista.conciertos_ids.length === 0) continue;
+    for (const concierto of conciertos) {
+        try {
+            const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
+            if (!venueRes.ok) throw new Error("Error al cargar venue");
 
-        for (const concierto_id of artista.conciertos_ids) {
-            try {
-                const conciertoRes = await fetch(`http://127.0.0.1:8000/v1/concierto/${concierto_id}`);
-                if (!conciertoRes.ok) throw new Error("Error al cargar concierto");
+            const venue = await venueRes.json();
 
-                const concierto = await conciertoRes.json();
+            listaConciertos.push({
+                id: concierto.id,
+                fecha: concierto.fecha,
+                nombreVenue: venue.nombreVenue
+            });
 
-                const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
-                if (!venueRes.ok) throw new Error("Error al cargar venue");
-
-                const venue = await venueRes.json();
-
-                conciertos.push({
-                    id: concierto.id,
-                    fecha: concierto.fecha,
-                    nombreVenue: venue.nombreVenue
-                });
-
-            } catch (error) {
-                console.error("Error cargando concierto o venue:", error);
-            }
+        } catch (error) {
+            console.error("Error cargando venue:", error);
         }
     }
 
-    return conciertos;
+    return listaConciertos;
 }
 
 function renderizarPagina() {

@@ -28,6 +28,8 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
 
     if (!venue_id || !fecha || !costoBoleto) {
         alert("Todos los campos son obligatorios");
+    if (!fecha || !costoBoleto) {
+        alert("Campos faltantes");
         return;
     }
 
@@ -41,6 +43,9 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
                 venue_id: venue_id,
                 fecha: fecha,
                 costoBoleto: parseInt(costoBoleto)
+                fecha,
+                venue_id,
+                costoBoleto: parseFloat(costoBoleto)
             })
         });
 

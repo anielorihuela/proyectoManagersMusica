@@ -4,18 +4,22 @@ document.getElementById("formConcierto").onsubmit = async function(e) {
     const lugar = document.getElementById("lugar").value.trim();
     const fecha = document.getElementById("fecha").value.trim();
 
-    if (!lugar || !fecha) {
+    if (!fecha || !venue_id || !fecha) {
         alert("Todos los campos son obligatorios");
         return;
     }
 
     try {
-        const res = await fetch("http://127.0.0.1:3000/conciertos", {
+        const res = await fetch("http://127.0.0.1:8000/v1/concierto", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ lugar, fecha })
+            body: JSON.stringify({
+                fecha,
+                venue_id,
+                costoBoleto: parseFloat(costoBoleto)
+            })
         });
 
         if (!res.ok) throw new Error("Error al crear concierto");

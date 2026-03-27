@@ -5,112 +5,301 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artistas</title>
 
-    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        .btn-outline-light{
-            border-radius: 10px;
-            border-color: white;
-        }
-
-        .card{
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-
-        .navbar{
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            background-color:#c98c8c;
-        }
-
-        .btn-outline-dark {
-            border-radius: 10px;
-        }
-
-        body {
-            background-color: #f8f9fa;
-            transition: background-color 0.3s, color 0.3s;
+        :root {
+            --rosa:       #c98c8c;
+            --rosa-dark:  #7a4a4a;
+            --rosa-soft:  #f5e8e8;
+            --card-bg:    #ffffff;
+            --body-bg:    #f8f9fa;
+            --text:       #1a1a1a;
+            --muted:      #6c757d;
+            --border:     rgba(201,140,140,0.2);
+            --shadow:     0 4px 12px rgba(0,0,0,0.08);
+            --badge-bg:   #f5e8e8;
+            --badge-text: #a05050;
         }
 
         body.dark-mode {
-            background-color: #1a1a2e;
-            color: #e8e8e8;
+            --rosa:       #d4a0a0;
+            --rosa-dark:  #5a3030;
+            --rosa-soft:  #2a1a1a;
+            --card-bg:    #1e1424;
+            --body-bg:    #1a1a2e;
+            --text:       #e8e8e8;
+            --muted:      #a0a0b8;
+            --border:     rgba(212,160,160,0.12);
+            --shadow:     0 8px 32px rgba(0,0,0,0.35);
+            --badge-bg:   #2e1a1a;
+            --badge-text: #d4a0a0;
         }
 
-        body.dark-mode .navbar {
-            background-color: #7a4a4a !important;
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--body-bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
         }
 
-        body.dark-mode .card {
-            background-color: #16213e;
-            color: #e8e8e8;
+        /* ── NAV ────────────────────────────── */
+        .navbar {
+            background-color: var(--rosa) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        body.dark-mode .navbar { background-color: var(--rosa-dark) !important; }
+
+        .navbar-brand { font-weight: 700; color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,0.85) !important; }
+        .nav-link.active, .nav-link:hover { color: #fff !important; }
+
+        .btn-outline-light {
+            border-radius: 10px;
+            border-color: white;
+            color: #fff;
+            font-size: 0.85rem;
+        }
+        .btn-outline-light:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+        /* ── HEADER ─────────────────────────── */
+        .page-header {
+            text-align: center;
+            padding: 3rem 0 1.5rem;
+        }
+        .page-header h1 { font-weight: 700; font-size: 2rem; }
+
+        /* ── TOOLBAR ─────────────────────────── */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1.75rem;
+            flex-wrap: wrap;
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+
+        .search-box { position: relative; }
+        .search-box input {
+            border: 1.5px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 7px 16px 7px 38px;
+            font-size: 0.9rem;
+            width: 210px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .search-box input:focus {
+            border-color: var(--rosa);
+            box-shadow: 0 0 0 3px rgba(201,140,140,0.15);
+        }
+        .search-box input::placeholder { color: var(--muted); }
+        .search-icon {
+            position: absolute; left: 12px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted); pointer-events: none;
         }
 
-        body.dark-mode .table {
-            color: #e8e8e8;
+        .btn-nuevo {
+            background: var(--rosa);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            box-shadow: 0 4px 12px rgba(180,100,100,0.25);
+        }
+        .btn-nuevo:hover { background: var(--rosa-dark); transform: scale(1.04); }
+
+        .results-count { font-size: 0.85rem; color: var(--muted); }
+
+        /* ── GRID ────────────────────────────── */
+        #infoArtistas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 1.5rem;
+            padding-bottom: 1rem;
         }
 
-        body.dark-mode .table-hover tbody tr:hover {
-            background-color: rgba(232, 160, 160, 0.08);
-            color: #e8e8e8;
+        /* ── CARD ────────────────────────────── */
+        .artist-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            animation: fadeUp 0.35s ease both;
+        }
+        .artist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
         }
 
-        body.dark-mode .text-muted {
-            color: #a0a0b8 !important;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        body.dark-mode .badge.bg-secondary {
-            background-color: #4a4a6a !important;
+        .genre-tag {
+            display: inline-block;
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            margin-bottom: 0.4rem;
         }
 
-        body.dark-mode .badge.text-bg-light {
-            background-color: #24324d !important;
-            color: #e8e8e8 !important;
-            border-color: #3a4a68 !important;
+        .card-body-custom {
+            padding: 1rem 1.1rem 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .card-name {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--text);
+            margin: 0;
+            line-height: 1.3;
+        }
+        .card-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.5rem; }
+        .badge-custom {
+            background: var(--badge-bg);
+            color: var(--badge-text);
+            border-radius: 20px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            padding: 3px 10px;
         }
 
-        body.dark-mode .btn-outline-primary {
-            color: #8cb4e8;
-            border-color: #8cb4e8;
+        /* álbumes */
+        .card-albums {
+            padding: 0 1.1rem 0.5rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .card-albums strong {
+            display: block;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--rosa);
+            margin-bottom: 0.3rem;
+        }
+        .card-albums ul { margin: 0; padding-left: 1.1rem; }
+        .card-albums li { margin-bottom: 2px; }
+
+        .card-footer-custom {
+            padding: 0.65rem 1.1rem 0.9rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-card {
+            flex: 1;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 0;
+            cursor: pointer;
+            border: 1.5px solid;
+            background: transparent;
+            transition: all 0.18s;
+        }
+        .btn-card-edit  { border-color: var(--rosa); color: var(--rosa); }
+        .btn-card-edit:hover  { background: var(--rosa); color: #fff; transform: scale(1.04); }
+        .btn-card-delete { border-color: #e88c8c; color: #e88c8c; }
+        .btn-card-delete:hover { background: #e88c8c; color: #fff; transform: scale(1.04); }
+
+        /* ── PAGINACIÓN ──────────────────────── */
+        .paginacion-wrapper {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1.5rem 0 2.5rem;
+        }
+        .btn-pag {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 7px 20px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+        .btn-pag:hover:not(:disabled) { background: var(--rosa); color: #fff; border-color: var(--rosa); }
+        .btn-pag:disabled { opacity: 0.35; cursor: default; }
+
+        .select-pag {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 7px 14px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .select-pag:focus {
+            border-color: var(--rosa);
+            box-shadow: 0 0 0 3px rgba(201,140,140,0.15);
         }
 
-        body.dark-mode .btn-outline-primary:hover {
-            background-color: #8cb4e8;
-            color: #1a1a2e;
+        /* ── EMPTY / ERROR ───────────────────── */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 5rem 1rem;
+            color: var(--muted);
         }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 0.75rem; opacity: 0.4; }
 
-        body.dark-mode .btn-outline-danger {
-            color: #e88c8c;
-            border-color: #e88c8c;
+        /* ── LOADING ─────────────────────────── */
+        .spinner-wrap {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: center;
+            padding: 4rem 0;
         }
-
-        body.dark-mode .btn-outline-danger:hover {
-            background-color: #e88c8c;
-            color: #1a1a2e;
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--rosa);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .btn:hover {
-            transform: scale(1.05);
-        }
-
-        .artista {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+        @media (max-width: 576px) {
+            .search-box input { width: 160px; }
         }
     </style>
 </head>
 
 <body>
 
-
+<!-- NAV -->
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container">
         <a class="navbar-brand" href="index.html">Managers música</a>
@@ -121,84 +310,227 @@
 
         <div class="collapse navbar-collapse" id="menuNavegacion">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="index.html">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="artistas.html">Artistas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="conciertos.html">Conciertos</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="estadisticas.html">Estadísticas</a>
-                </li>
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="artistas.html">Artistas</a></li>
+                <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
+                <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
             </ul>
-
-            <button class="btn btn-outline-light ms-lg-3" id="themeToggle">
-                Dark mode
-            </button>
+            <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
         </div>
     </div>
 </nav>
 
-
-<div class="container mt-5 pt-3">
-    <h1 class="fw-bold mb-4 text-center">Artistas</h1>
-    <p class="text-center text-muted mb-5">
-        Gestiona los artistas registrados
-    </p>
-
-    <div class="card p-4 shadow-sm">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="mb-0">Lista de artistas</h5>
-
-            <button class="btn btn-primary" onclick="irANuevoArtista()">
-                + Nuevo artista
-            </button>
-        </div>
+<!-- CONTENIDO -->
+<div class="container">
+    <div class="page-header">
+        <h1 class="fw-bold mb-1">Artistas</h1>
+        <p class="text-muted mb-0">Gestiona los artistas registrados</p>
     </div>
 
-       
-        <div id="infoArtistas"></div>
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <div class="search-box">
+                <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Buscar artista…">
+            </div>
+            <span class="results-count" id="resultsCount"></span>
+        </div>
+        <button class="btn-nuevo" onclick="irANuevoArtista()">+ Nuevo artista</button>
+    </div>
 
+    <!-- GRID -->
+    <div id="infoArtistas">
+        <div class="spinner-wrap"><div class="spinner"></div></div>
     </div>
 </div>
 
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-
+<!-- Dark mode -->
 <script>
-function irANuevoArtista() {
-    window.location.href = "nuevoArtista.html";
+const themeToggle = document.getElementById('themeToggle');
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.innerText = 'Light mode';
 }
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const dark = document.body.classList.contains('dark-mode');
+    themeToggle.innerText = dark ? 'Light mode' : 'Dark mode';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+});
 </script>
 
-<script src="scriptArtistas.js"></script>
-
+<!-- Lógica principal -->
 <script>
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
+const POR_PAGINA = 8;
+let pagina         = 1;
+let datosGlobales  = [];
+let datosFiltrados = [];
 
-    if (localStorage.getItem('theme') === 'dark') {
-        body.classList.add('dark-mode');
-        themeToggle.innerText = 'Light Mode';
-    }
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('dark-mode');
-        
-        if (body.classList.contains('dark-mode')) {
-            themeToggle.innerText = 'Light Mode';
-            localStorage.setItem('theme', 'dark');
+/* ── Carga inicial ── */
+window.onload = async function () {
+    try {
+        const guardado = localStorage.getItem('artistas');
+        let artistas;
+
+        if (guardado) {
+            artistas = JSON.parse(guardado);
         } else {
-            themeToggle.innerText = 'Dark Mode';
-            localStorage.setItem('theme', 'light');
+            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
+            if (!res.ok) throw new Error('Error al cargar artistas');
+            artistas = await res.json();
+            localStorage.setItem('artistas', JSON.stringify(artistas));
+        }
+
+        datosGlobales  = artistas;
+        datosFiltrados = artistas;
+        renderizarPagina();
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById('infoArtistas').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">⚠️</div>
+                <p>Error al cargar artistas. Verifica que el servidor esté activo.</p>
+            </div>`;
+    }
+
+    /* Delegación para Eliminar */
+    document.getElementById('infoArtistas').addEventListener('click', async function (e) {
+        if (!e.target.classList.contains('btn-card-delete')) return;
+        const id = e.target.dataset.id;
+        if (!confirm('¿Seguro que quieres eliminar este artista?')) return;
+
+        try {
+            const res = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error();
+            alert('Artista eliminado correctamente');
+            localStorage.removeItem('artistas');
+            location.reload();
+        } catch {
+            alert('Error al eliminar el artista');
         }
     });
-</script>
+};
 
+/* ── Render página ── */
+async function renderizarPagina() {
+    const contenedor = document.getElementById('infoArtistas');
+    const countEl    = document.getElementById('resultsCount');
+
+    countEl.textContent = datosFiltrados.length
+        ? `${datosFiltrados.length} artista${datosFiltrados.length !== 1 ? 's' : ''}`
+        : '';
+
+    if (datosFiltrados.length === 0) {
+        contenedor.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">🎵</div>
+                <p>No hay artistas que coincidan con tu búsqueda.</p>
+            </div>`;
+        return;
+    }
+
+    contenedor.innerHTML = '<div class="spinner-wrap"><div class="spinner"></div></div>';
+
+    const inicio = (pagina - 1) * POR_PAGINA;
+    const slice  = datosFiltrados.slice(inicio, inicio + POR_PAGINA);
+    const cards  = await Promise.all(slice.map((a, i) => buildCard(a, i)));
+
+    contenedor.innerHTML = cards.join('');
+
+    /* paginación */
+    const totalPaginas = Math.ceil(datosFiltrados.length / POR_PAGINA);
+    if (totalPaginas > 1) {
+        const opciones = Array.from({ length: totalPaginas }, (_, i) =>
+            `<option value="${i + 1}" ${pagina === i + 1 ? 'selected' : ''}>Página ${i + 1} de ${totalPaginas}</option>`
+        ).join('');
+
+        contenedor.insertAdjacentHTML('beforeend', `
+            <div class="paginacion-wrapper">
+                <button class="btn-pag" id="btnAnterior" ${pagina === 1 ? 'disabled' : ''}>← Anterior</button>
+                <select class="select-pag" id="selectorPagina">${opciones}</select>
+                <button class="btn-pag" id="btnSiguiente" ${pagina >= totalPaginas ? 'disabled' : ''}>Siguiente →</button>
+            </div>`);
+
+        document.getElementById('btnAnterior').onclick  = () => { pagina--; renderizarPagina(); };
+        document.getElementById('btnSiguiente').onclick = () => { pagina++; renderizarPagina(); };
+        document.getElementById('selectorPagina').onchange = function () {
+            pagina = parseInt(this.value);
+            renderizarPagina();
+        };
+    }
+}
+
+/* ── Construir card HTML ── */
+async function buildCard(artista, idx) {
+    const nombre     = artista.nombreArtista || 'Sin nombre';
+    const genero     = artista.generoArtista || '';
+    const popular    = artista.popularidad   ?? null;
+    const seguidores = artista.seguidores    ?? null;
+    const id         = artista.id            ?? idx;
+    const inicial    = nombre.charAt(0).toUpperCase();
+
+    /* álbumes */
+    let albumesHtml = '';
+    if (artista.albumes_ids && artista.albumes_ids.length > 0) {
+        const items = await Promise.all(artista.albumes_ids.map(async id_album => {
+            try {
+                const res = await fetch(`http://127.0.0.1:8000/v1/album/${id_album}`);
+                if (!res.ok) throw new Error();
+                const album = await res.json();
+                return `<li>${album.nombreAlbum} <span style="opacity:.6">(${album.generoAlbum})</span></li>`;
+            } catch {
+                return `<li style="opacity:.5">Álbum no disponible</li>`;
+            }
+        }));
+        albumesHtml = `
+            <div class="card-albums">
+                <strong>Álbumes</strong>
+                <ul>${items.join('')}</ul>
+            </div>`;
+    }
+
+    return `
+    <div class="artist-card" style="animation-delay:${idx * 0.06}s">
+        <div class="card-body-custom">
+            ${genero ? `<span class="genre-tag">${genero}</span>` : ''}
+            <p class="card-name">${nombre}</p>
+            <div class="card-meta">
+                ${popular    !== null ? `<span class="badge-custom">⭐ ${popular}</span>` : ''}
+                ${seguidores !== null ? `<span class="badge-custom">🎧 ${Number(seguidores).toLocaleString()}</span>` : ''}
+            </div>
+        </div>
+        ${albumesHtml}
+        <div class="card-footer-custom">
+            <button class="btn-card btn-card-edit"   onclick="editarArtista('${id}')">Editar</button>
+            <button class="btn-card btn-card-delete" data-id="${id}">Eliminar</button>
+        </div>
+    </div>`;
+}
+
+/* ── Búsqueda en tiempo real ── */
+document.getElementById('searchInput').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    pagina = 1;
+    datosFiltrados = q
+        ? datosGlobales.filter(a =>
+            (a.nombreArtista || '').toLowerCase().includes(q) ||
+            (a.generoArtista || '').toLowerCase().includes(q))
+        : datosGlobales;
+    renderizarPagina();
+});
+
+/* ── Navegación ── */
+function irANuevoArtista() { window.location.href = 'nuevoArtista.html'; }
+function editarArtista(id) { window.location.href = `editarArtistas.html?id=${id}`; }
+</script>
 
 </body>
 </html>

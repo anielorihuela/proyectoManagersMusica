@@ -54,10 +54,10 @@ pip install -r requirements.txt
 uvicorn main:app --reload
 ```
 
-El servidor quedará disponible en `http://127.0.0.1:8000`. Para confirmar que está corriendo correctamente, abre en el navegador:
+El servidor quedará disponible en `https://proyectomanagersmusica-2.onrender.com`. Para confirmar que está corriendo correctamente, abre en el navegador:
 
 ```
-http://127.0.0.1:8000/v1/artistas
+https://proyectomanagersmusica-2.onrender.com/v1/artistas
 ```
 
 Deberías ver un arreglo JSON con los artistas precargados.
@@ -112,7 +112,7 @@ El frontend no requiere instalación de dependencias. Todas las bibliotecas exte
 | GET | /v1/album/{id} | Obtiene un album por ID |
 | GET | /v1/canciones | Lista todas las canciones |
 
-El health endpoint principal es: `http://127.0.0.1:8000/v1/artistas`
+El health endpoint principal es: `https://proyectomanagersmusica-2.onrender.com/v1/artistas`
 
 ---
 

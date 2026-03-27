@@ -6,7 +6,7 @@ window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
-        const res = await fetch('http://127.0.0.1:8000/v1/conciertos');
+        const res = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/conciertos');
 
         if (!res.ok) {
             throw new Error('Error al cargar conciertos');
@@ -31,7 +31,7 @@ window.onload = async function () {
                 if (!confirm("¿Seguro que quieres eliminar este concierto?")) return;
 
                 try {
-                    const resEliminar = await fetch(`http://127.0.0.1:8000/v1/concierto/${id}`, {
+                    const resEliminar = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/concierto/${id}`, {
                         method: "DELETE"
                     });
 
@@ -68,7 +68,7 @@ async function construirListaConciertos(conciertos) {
 
     for (const concierto of conciertos) {
         try {
-            const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
+            const venueRes = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/venue/${concierto.venue_id}`);
             if (!venueRes.ok) throw new Error("Error al cargar venue");
 
             const venue = await venueRes.json();

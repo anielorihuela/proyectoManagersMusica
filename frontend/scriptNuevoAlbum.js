@@ -25,7 +25,7 @@ window.onload = function () {
 
         try {
             // Nota: Verifica si tu endpoint es /v1/album o /v1/albumes (plural)
-            const res = await fetch("http://127.0.0.1:8000/v1/album", {
+            const res = await fetch("https://proyectomanagersmusica-2.onrender.com/v1/album", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

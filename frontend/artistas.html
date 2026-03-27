@@ -494,7 +494,7 @@ window.onload = async function () {
     try {
         // Cargar álbumes primero para tenerlos disponibles en las cards
         try {
-            const resAlbumes = await fetch('http://127.0.0.1:8000/v1/albumes');
+            const resAlbumes = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/albumes');
             if (resAlbumes.ok) {
                 const lista = await resAlbumes.json();
                 lista.forEach(a => { albumesCache[a.id] = a; });
@@ -507,7 +507,7 @@ window.onload = async function () {
         if (guardado) {
             artistas = JSON.parse(guardado);
         } else {
-            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
+            const res = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/artistas');
             if (!res.ok) throw new Error('Error al cargar artistas');
             artistas = await res.json();
             localStorage.setItem('artistas', JSON.stringify(artistas));
@@ -533,7 +533,7 @@ window.onload = async function () {
         if (!confirm('¿Seguro que quieres eliminar este artista?')) return;
 
         try {
-            const res = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, { method: 'DELETE' });
+            const res = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/artista/${id}`, { method: 'DELETE' });
             if (!res.ok) throw new Error();
             alert('Artista eliminado correctamente');
             localStorage.removeItem('artistas');
@@ -657,7 +657,7 @@ function editarArtista(id) { window.location.href = `editarArtistas.html?id=${id
 async function cargarAlbumes() {
     const contenedor = document.getElementById('infoAlbumes');
     try {
-        const res = await fetch('http://127.0.0.1:8000/v1/albumes');
+        const res = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/albumes');
         if (!res.ok) throw new Error();
         const albumes = await res.json();
 
@@ -697,7 +697,7 @@ async function cargarAlbumes() {
 async function cargarCanciones() {
     const contenedor = document.getElementById('infoCanciones');
     try {
-        const res = await fetch('http://127.0.0.1:8000/v1/canciones');
+        const res = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/canciones');
         if (!res.ok) throw new Error();
         const canciones = await res.json();
 

@@ -8,7 +8,7 @@ window.onload = async function () {
     }
 
     try{
-        const respuesta = await fetch(`http://127.0.0.1:8000/v1/concierto/${id}`);
+        const respuesta = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/concierto/${id}`);
         const concierto = await respuesta.json();
 
         document.getElementById("fecha").value = concierto.fecha;
@@ -31,7 +31,7 @@ document.getElementById("btnGuardarConcierto").addEventListener("click", async f
     };
 
     try {
-        const respuesta = await fetch(`http://127.0.0.1:8000/v1/concierto/${id}`, {
+        const respuesta = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/concierto/${id}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json"

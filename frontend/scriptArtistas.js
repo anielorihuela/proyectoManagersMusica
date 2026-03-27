@@ -13,7 +13,7 @@ window.onload = async function () {
             artistas = JSON.parse(datosGuardados);
             console.log('Cargando desde localStorage', artistas);
         } else {
-            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
+            const res = await fetch('https://proyectomanagersmusica-2.onrender.com/v1/artistas');
 
             if (!res.ok) {
                 throw new Error("Error al cargar artistas");
@@ -37,7 +37,7 @@ window.onload = async function () {
                 if (!confirm("¿Seguro que quieres eliminar este artista?")) return;
 
                 try {
-                    const resEliminar = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, {
+                    const resEliminar = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/artista/${id}`, {
                         method: "DELETE"
                     });
 
@@ -129,7 +129,7 @@ async function pintarArtistas(artistas) {
         if (artista.albumes_ids && artista.albumes_ids.length > 0) {
             for (const id_album of artista.albumes_ids) {
                 try {
-                    const resAlbum = await fetch(`http://127.0.0.1:8000/v1/album/${id_album}`);
+                    const resAlbum = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/album/${id_album}`);
 
                     if (!resAlbum.ok) throw new Error();
 

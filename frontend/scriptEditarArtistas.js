@@ -11,7 +11,7 @@ window.onload = async function () {
             throw new Error('ID no encontrado en la URL');
         }
 
-        const res = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`);
+        const res = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/artista/${id}`);
 
         if (!res.ok) {
             throw new Error('No se pudo cargar el artista');
@@ -70,7 +70,7 @@ async function guardar_cambios(e) {
                 : []
         };
 
-        const res = await fetch(`http://127.0.0.1:8000/v1/artista/${id}`, {
+        const res = await fetch(`https://proyectomanagersmusica-2.onrender.com/v1/artista/${id}`, {
             method: metodo,
             headers: {
                 'Content-Type': 'application/json'

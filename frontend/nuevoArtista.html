@@ -13,6 +13,7 @@
     <h1>Nuevo Artista</h1>
 
     <form id="formArtista">
+        <label>Nombre del artista</label>
         <input 
             type="text" 
             id="nombre" 
@@ -21,24 +22,48 @@
         >
         <br><br>
 
-        <h3>Álbum</h3>
+        <label>Género</label>
         <input 
             type="text" 
-            id="album" 
-            placeholder="Nombre del álbum"
+            id="genero" 
+            placeholder="Género (opcional)"
         >
         <br><br>
 
-        <h3>Canción</h3>
+        <label>Popularidad</label>
         <input 
-            type="text" 
-            id="cancion" 
-            placeholder="Nombre de la canción"
+            type="number" 
+            id="popularidad" 
+            placeholder="0-100 (opcional)"
+            min="0"
+            max="100"
+        >
+        <br><br>
+
+        <label>Seguidores</label>
+        <input 
+            type="number" 
+            id="seguidores" 
+            placeholder="Cantidad de seguidores (opcional)"
+            min="0"
         >
         <br><br>
 
         <button type="submit">Guardar</button>
     </form>
+
+    <div style="margin-top: 30px; text-align: center;">
+        <button onclick="window.location.href='nuevoAlbum.html'" style="margin-right: 10px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            + Nuevo Álbum
+        </button>
+        <button onclick="window.location.href='nuevoConcierto.html'" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            + Nuevo Concierto
+        </button>
+    </div>
+
+    <p style="margin-top: 20px; color: #666;">
+        <em>Nota: Después de crear el artista, podrás agregar álbumes, canciones y conciertos desde la página de artistas.</em>
+    </p>
 
     <script src="scriptNuevoArtista.js"></script>
 

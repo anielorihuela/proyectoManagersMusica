@@ -2,70 +2,179 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuevo Artista</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .btn-outline-light{
+            border-radius: 10px;
+            border-color: white;
+        }
+
+        .card{
+            border-radius: 16px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+        }
+
+        .card:hover{
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .navbar{
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
+            background-color:#c98c8c;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .navbar {
+            background-color: #7a4a4a !important;
+        }
+        body.dark-mode .card {
+            background-color: #16213e;
+            color: #e8e8e8;
+        }
+        body.dark-mode .form-label {
+            color: #e8e8e8;
+        }
+        body.dark-mode .form-control {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #4a4a6a;
+        }
+        body.dark-mode .form-control:focus {
+            background-color: #1a1a2e;
+            color: #e8e8e8;
+            border-color: #8cb4e8;
+            box-shadow: 0 0 0 0.2rem rgba(140, 180, 232, 0.25);
+        }
+        body.dark-mode .btn-outline-primary {
+            color: #8cb4e8;
+            border-color: #8cb4e8;
+        }
+        body.dark-mode .btn-outline-primary:hover {
+            background-color: #8cb4e8;
+            color: #1a1a2e;
+        }
+        body.dark-mode .text-muted {
+            color: #a0a0b8 !important;
+        }
+
+        .btn:hover{
+            transform: scale(1.05);
+        }
+    </style>
 </head>
+
 <body>
 
-    <button onclick="window.location.href='artistas.html'">
-        ← Volver a artistas
-    </button>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-    <h1>Nuevo Artista</h1>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="nav-link" href="index.html">Managers música</a>
 
-    <form id="formArtista">
-        <label>Nombre del artista</label>
-        <input 
-            type="text" 
-            id="nombre" 
-            placeholder="Nombre del artista"
-            required
-        >
-        <br><br>
-
-        <label>Género</label>
-        <input 
-            type="text" 
-            id="genero" 
-            placeholder="Género (opcional)"
-        >
-        <br><br>
-
-        <label>Popularidad</label>
-        <input 
-            type="number" 
-            id="popularidad" 
-            placeholder="0-100 (opcional)"
-            min="0"
-            max="100"
-        >
-        <br><br>
-
-        <label>Seguidores</label>
-        <input 
-            type="number" 
-            id="seguidores" 
-            placeholder="Cantidad de seguidores (opcional)"
-            min="0"
-        >
-        <br><br>
-
-        <button type="submit">Guardar</button>
-    </form>
-
-    <div style="margin-top: 30px; text-align: center;">
-        <button onclick="window.location.href='nuevoAlbum.html'" style="margin-right: 10px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            + Nuevo Álbum
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <button onclick="window.location.href='nuevoConcierto.html'" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
-            + Nuevo Concierto
-        </button>
+
+        <div class="collapse navbar-collapse" id="menuNavegacion">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link active" href="artistas.html">Artistas</a></li>
+                <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
+                <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
+            </ul>
+
+            <button class="btn btn-outline-light ms-lg-3">Dark mode</button>
+        </div>
     </div>
+</nav>
 
-    <p style="margin-top: 20px; color: #666;">
-        <em>Nota: Después de crear el artista, podrás agregar álbumes, canciones y conciertos desde la página de artistas.</em>
+<div class="container mt-5 pt-3">
+    <h1 class="fw-bold mb-4 text-center">Nuevo Artista</h1>
+    <p class="text-center text-muted mb-5">
+        Agrega un nuevo artista al sistema
     </p>
 
-    <script src="scriptNuevoArtista.js"></script>
+    <div class="card p-4 shadow-sm">
+        <form id="formArtista">
+            <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre del artista</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="nombre" 
+                    placeholder="Nombre del artista"
+                    required
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="genero" class="form-label">Género</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    id="genero" 
+                    placeholder="Género (opcional)"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="popularidad" class="form-label">Popularidad</label>
+                <input 
+                    type="number" 
+                    class="form-control" 
+                    id="popularidad" 
+                    placeholder="0-100 (opcional)"
+                    min="0"
+                    max="100"
+                >
+            </div>
+
+            <div class="mb-3">
+                <label for="seguidores" class="form-label">Seguidores</label>
+                <input 
+                    type="number" 
+                    class="form-control" 
+                    id="seguidores" 
+                    placeholder="Cantidad de seguidores (opcional)"
+                    min="0"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <button onclick="window.location.href='nuevoAlbum.html'" class="btn btn-outline-primary me-2">
+                + Nuevo Álbum
+            </button>
+            <button onclick="window.location.href='nuevoConcierto.html'" class="btn btn-outline-primary">
+                + Nuevo Concierto
+            </button>
+        </div>
+
+        <p class="text-muted mt-3 text-center">
+            <em>Nota: Después de crear el artista, podrás agregar álbumes, canciones y conciertos desde la página de artistas.</em>
+        </p>
+    </div>
+</div>
+
+<script src="scriptNuevoArtista.js"></script>
 
 </body>
 </html>

@@ -91,3 +91,11 @@ class ConciertoPut(BaseModel):
     venue_id: UUID
     costoBoleto:str 
     estado: str
+    
+class ArtistaPut(BaseModel):
+    nombreArtista: str
+    generoArtista: str
+    popularidad: int
+    seguidores: int
+    conciertos_ids: list[UUID]
+    albumes_ids: list[UUID]

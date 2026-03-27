@@ -24,7 +24,7 @@ window.onload = async function () {
             const id = boton.getAttribute('data-id');
 
             if (boton.classList.contains('btn-editar')) {
-                window.location.href = `editarConcierto.html?id=${id}`;
+                window.location.href = `editarConciertos.html?id=${id}`;
             }
 
             else if (boton.classList.contains('btn-eliminar')) {

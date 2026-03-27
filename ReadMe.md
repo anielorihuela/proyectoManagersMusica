@@ -25,10 +25,18 @@ proyectoManagersMusica/
         conciertos.html
         editarArtistas.html
         estadisticas.html
+        nuevaCancion.html
+        nuevoAlbum.html
+        nuevoArtista.html
+        nuevoConcierto.html
         scriptIndex.js
         scriptArtistas.js
         scriptConciertos.js
         scriptEditarArtistas.js
+        scriptNuevaCancion.js
+        scriptNuevoAlbum.js
+        scriptNuevoArtista.js
+        scriptNuevoConcierto.js
 ```
 
 La carpeta `api/` contiene todo el backend. La carpeta `frontend/` contiene las páginas y los scripts que las acompañan. Cada página tiene su propio archivo de script para mantener las responsabilidades separadas.

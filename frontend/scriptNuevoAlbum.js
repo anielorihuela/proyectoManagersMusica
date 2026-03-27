@@ -8,12 +8,13 @@ window.onload = function () {
         const generoAlbum = document.getElementById("generoAlbum").value;
         const cancionesInput = document.getElementById("canciones_ids").value;
 
+        // Validación simple
         if (!nombreAlbum || !generoAlbum) {
             alert("El nombre y género del álbum son obligatorios");
             return;
         }
 
-        // Procesar IDs de canciones
+        // Procesar IDs de canciones (de texto a Array)
         let canciones_ids = [];
         if (cancionesInput.trim()) {
             canciones_ids = cancionesInput
@@ -23,6 +24,7 @@ window.onload = function () {
         }
 
         try {
+            // Nota: Verifica si tu endpoint es /v1/album o /v1/albumes (plural)
             const res = await fetch("http://127.0.0.1:8000/v1/album", {
                 method: 'POST',
                 headers: {
@@ -36,21 +38,25 @@ window.onload = function () {
             });
 
             if (!res.ok) {
-                throw new Error("Error al guardar el álbum");
+                const errorData = await res.json();
+                throw new Error(errorData.detail || "Error al guardar el álbum");
             }
 
             const data = await res.json();
             console.log("Álbum creado:", data);
 
-            alert("Álbum creado correctamente");
+            alert("✅ Álbum creado correctamente");
 
+            // Limpiamos caché para forzar la recarga de datos frescos en el panel
             localStorage.removeItem("albumes");
+            localStorage.removeItem("artistas");
 
-            window.location.href = "nuevoArtista.html";
+            // REDIRECCIÓN: Cambiado de nuevoArtista.html a artistas.html
+            window.location.href = "artistas.html";
 
         } catch (error) {
             console.error(error);
-            alert("Error al crear álbum: " + error.message);
+            alert("❌ Error al crear álbum: " + error.message);
         }
     };
 };

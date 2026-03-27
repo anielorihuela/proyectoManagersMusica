@@ -3,163 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nueva Canción</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <title>Nueva Canción | Managers Música</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
-        .btn-outline-light {
-            border-radius: 10px;
-            border-color: white;
-        }
-
-        .card {
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.2s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-        }
-
-        .navbar {
-            box-shadow: 0 2px 10px rgba(0,0,0,1);
-            background-color: #c98c8c;
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-        }
-
-        body {
-            background-color: #f8f9fa;
-            transition: background-color 0.3s, color 0.3s;
+        :root {
+            --rosa: #c98c8c;
+            --rosa-dark: #7a4a4a;
+            --body-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --border: rgba(201,140,140,0.2);
         }
 
         body.dark-mode {
-            background-color: #1a1a2e;
-            color: #e8e8e8;
+            --body-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --border: rgba(212,160,160,0.15);
         }
 
-        body.dark-mode .navbar {
-            background-color: #7a4a4a !important;
+        body {
+            background-color: var(--body-bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        body.dark-mode .card {
-            background-color: #16213e;
-            color: #e8e8e8;
+        .navbar {
+            background-color: var(--rosa) !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        body.dark-mode .navbar { background-color: #5a3535 !important; }
+
+        .card-form {
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            margin-top: 1rem;
         }
 
-        body.dark-mode .form-control,
-        body.dark-mode .form-select {
-            background-color: #0f1a2e;
-            color: #e8e8e8;
-            border-color: #2a2a4a;
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--rosa);
         }
 
-        body.dark-mode .form-control:focus,
-        body.dark-mode .form-select:focus {
-            background-color: #0f1a2e;
-            color: #e8e8e8;
-            border-color: #c98c8c;
-            box-shadow: 0 0 0 0.2rem rgba(201,140,140,0.25);
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 15px;
+            border: 1.5px solid var(--border);
+            background-color: var(--card-bg);
+            color: var(--text);
         }
 
-        body.dark-mode .form-label {
-            color: #c0c0d0;
+        body.dark-mode .form-control {
+            background-color: #0f172a;
+            color: white;
         }
 
-        body.dark-mode .form-text,
-        body.dark-mode .text-muted {
-            color: #a0a0b8 !important;
+        .form-control:focus {
+            border-color: var(--rosa);
+            box-shadow: 0 0 0 3px rgba(201,140,140,0.2);
+            background-color: var(--card-bg);
+            color: var(--text);
         }
 
-        body.dark-mode .btn-outline-secondary {
-            color: #c0c0d0;
-            border-color: #4a4a6a;
+        .btn-primary {
+            background-color: var(--rosa);
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 700;
+            transition: all 0.2s;
         }
 
-        body.dark-mode .btn-outline-secondary:hover {
-            background-color: #4a4a6a;
-            color: #e8e8e8;
+        .btn-primary:hover {
+            background-color: var(--rosa-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-back {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+        .btn-back:hover { color: var(--rosa); }
+
+        .helper-text {
+            font-size: 0.8rem;
+            margin-top: 6px;
+            color: var(--rosa);
+            font-weight: 500;
         }
     </style>
 </head>
-
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Managers música</a>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="index.html">Managers Música</a>
+        <button class="btn btn-outline-light btn-sm rounded-pill px-3" id="themeToggle">Dark Mode</button>
+    </div>
+</nav>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavegacion">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <a href="artistas.html" class="btn-back mb-3 d-inline-block">
+                <i class="bi bi-arrow-left me-2"></i>Volver al panel
+            </a>
 
-            <div class="collapse navbar-collapse" id="menuNavegacion">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="artistas.html">Artistas</a></li>
-                    <li class="nav-item"><a class="nav-link" href="conciertos.html">Conciertos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
-                </ul>
-
-                <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-5 pt-3 pb-5">
-        <h1 class="fw-bold mb-2 text-center">Nueva canción</h1>
-        <p class="text-center text-muted mb-5">
-            Captura la información de la canción
-        </p>
-
-        <div class="card p-4 shadow-sm mx-auto" style="max-width: 720px;">
-            <div class="mb-3">
-                <label for="nombreCancion" class="form-label fw-semibold">Nombre de la canción</label>
-                <input type="text" class="form-control" id="nombreCancion" placeholder="Nombre de la canción">
-            </div>
-
-            <div class="mb-4">
-                <label for="duracionEnSegundos" class="form-label fw-semibold">Duración en segundos</label>
-                <input type="number" class="form-control" id="duracionEnSegundos" placeholder="Ejemplo: 180" min="1">
-                <div class="form-text">
-                    Ingresa la duración total en segundos.
+            <div class="card-form">
+                <div class="text-center mb-4">
+                    <i class="bi bi-music-note-beamed display-4 text-primary"></i>
+                    <h2 class="fw-bold mt-3">Nueva Canción</h2>
+                    <p class="text-muted small">Captura los detalles de la pista</p>
                 </div>
-            </div>
 
-            <div class="d-flex gap-2 justify-content-end flex-wrap">
-                <a href="nuevoAlbum.html" class="btn btn-outline-secondary">Cancelar</a>
-                <button type="button" class="btn btn-primary" id="btnCrearCancion">Crear canción</button>
-            </div>
+                <form id="formCancion">
+                    <div class="mb-3">
+                        <label for="nombreCancion" class="form-label">Nombre de la canción</label>
+                        <input type="text" class="form-control" id="nombreCancion" placeholder="Ej: Saoko" required>
+                    </div>
 
-            <div id="mensajeResultado" class="mt-3" style="display:none;"></div>
+                    <div class="mb-4">
+                        <label for="duracionEnSegundos" class="form-label">Duración en segundos</label>
+                        <input type="number" class="form-control" id="duracionEnSegundos" placeholder="Ej: 180" min="1" required>
+                        <div id="duracionHelper" class="helper-text">Tiempo estimado: 0:00 min</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm" id="btnCrearCancion">
+                            <i class="bi bi-plus-circle-fill me-2"></i>Guardar Canción
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="mensajeResultado" class="mt-3"></div>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        function applyTheme(dark) {
-            document.body.classList.toggle('dark-mode', dark);
-            themeToggle.textContent = dark ? 'Light mode' : 'Dark mode';
+<script>
+    /* ── Lógica de Dark Mode ── */
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.innerHTML = '<i class="bi bi-sun-fill me-2"></i>Light Mode';
+        } else {
+            body.classList.remove('dark-mode');
+            themeToggle.innerHTML = '<i class="bi bi-moon-fill me-2"></i>Dark Mode';
         }
+    };
 
-        themeToggle.addEventListener('click', () => {
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'light' : 'dark');
-            applyTheme(!isDark);
-        });
+    applyTheme(localStorage.getItem('theme'));
 
-        window.addEventListener('load', () => {
-            applyTheme(localStorage.getItem('theme') === 'dark');
-        });
-    </script>
+    themeToggle.addEventListener('click', () => {
+        const isDark = body.classList.toggle('dark-mode');
+        const currentTheme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', currentTheme);
+        applyTheme(currentTheme);
+    });
 
-    <script src="scriptNuevaCancion.js"></script>
+    /* ── Conversor de tiempo visual ── */
+    const duracionInput = document.getElementById('duracionEnSegundos');
+    const duracionHelper = document.getElementById('duracionHelper');
+
+    duracionInput.addEventListener('input', (e) => {
+        const seg = parseInt(e.target.value) || 0;
+        const min = Math.floor(seg / 60);
+        const remSeg = seg % 60;
+        duracionHelper.textContent = `Tiempo estimado: ${min}:${remSeg.toString().padStart(2, '0')} min`;
+    });
+</script>
+
+<script src="scriptNuevaCancion.js"></script>
+
 </body>
 </html>

@@ -1,51 +1,35 @@
-
 let pagina = 1;
 const porPagina = 5;
-let datosGlobales = [];
+let conciertosGlobales = [];
 
 window.onload = async function () {
     const contenedor = document.getElementById('tablaConciertos');
 
     try {
-        const datosGuardados = localStorage.getItem('conciertos');
+        const res = await fetch('http://127.0.0.1:8000/v1/artistas');
 
-        let artistas;
-
-        if (datosGuardados) {
-            artistas = JSON.parse(datosGuardados);
-            console.log('Cargando desde localStorage', artistas);
-
-        } else {
-           
-            const res = await fetch('http://127.0.0.1:8000/v1/artistas');
-
-            if (!res.ok) {
-                throw new Error('Error al cargar artistas');
-            }
-
-            artistas = await res.json();
-
-            
-            localStorage.setItem('conciertos', JSON.stringify(artistas));
+        if (!res.ok) {
+            throw new Error('Error al cargar artistas');
         }
 
-        
-        datosGlobales = artistas;
+        const artistas = await res.json();
+        conciertosGlobales = await construirListaConciertos(artistas);
 
-       
         renderizarPagina();
 
-       
-        contenedor.addEventListener('click', async function(e) {
+        contenedor.addEventListener('click', async function (e) {
+            const boton = e.target.closest('button');
+            if (!boton) return;
 
-            const id = e.target.getAttribute('data-id');
+            const id = boton.getAttribute('data-id');
 
             if (e.target.classList.contains('btn-editar')) {
+                window.location.href = `editarConciertos.html?id=${id}`;
+            if (boton.classList.contains('btn-editar')) {
                 window.location.href = `editarConcierto.html?id=${id}`;
             }
 
-            else if (e.target.classList.contains('btn-eliminar')) {
-
+            else if (boton.classList.contains('btn-eliminar')) {
                 if (!confirm("¿Seguro que quieres eliminar este concierto?")) return;
 
                 try {
@@ -53,15 +37,20 @@ window.onload = async function () {
                         method: "DELETE"
                     });
 
-                    if (resEliminar.ok) {
-                        alert("Concierto eliminado correctamente");
-
-                        localStorage.removeItem('conciertos');
-                        location.reload();
-
-                    } else {
-                        throw new Error();
+                    if (!resEliminar.ok) {
+                        throw new Error("No se pudo eliminar el concierto");
                     }
+
+                    alert("Concierto eliminado correctamente");
+
+                    conciertosGlobales = conciertosGlobales.filter(concierto => concierto.id !== id);
+
+                    const totalPaginas = Math.ceil(conciertosGlobales.length / porPagina);
+                    if (pagina > totalPaginas && totalPaginas > 0) {
+                        pagina = totalPaginas;
+                    }
+
+                    renderizarPagina();
 
                 } catch (error) {
                     alert("Error al eliminar el concierto");
@@ -76,34 +65,61 @@ window.onload = async function () {
     }
 };
 
+async function construirListaConciertos(artistas) {
+    const conciertos = [];
 
+    for (const artista of artistas) {
+        if (!artista.conciertos_ids || artista.conciertos_ids.length === 0) continue;
 
+        for (const concierto_id of artista.conciertos_ids) {
+            try {
+                const conciertoRes = await fetch(`http://127.0.0.1:8000/v1/concierto/${concierto_id}`);
+                if (!conciertoRes.ok) throw new Error("Error al cargar concierto");
 
-async function renderizarPagina() {
+                const concierto = await conciertoRes.json();
+
+                const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
+                if (!venueRes.ok) throw new Error("Error al cargar venue");
+
+                const venue = await venueRes.json();
+
+                conciertos.push({
+                    id: concierto.id,
+                    fecha: concierto.fecha,
+                    nombreVenue: venue.nombreVenue
+                });
+
+            } catch (error) {
+                console.error("Error cargando concierto o venue:", error);
+            }
+        }
+    }
+
+    return conciertos;
+}
+
+function renderizarPagina() {
     const contenedor = document.getElementById('tablaConciertos');
     contenedor.innerHTML = '';
 
     const inicio = (pagina - 1) * porPagina;
     const fin = inicio + porPagina;
 
-    const datosPaginados = datosGlobales.slice(inicio, fin);
+    const datosPaginados = conciertosGlobales.slice(inicio, fin);
 
-    await pintarConciertos(datosPaginados);
-
-    renderBotones(); 
+    pintarConciertos(datosPaginados);
+    renderBotones();
 }
-
-
-
 
 function renderBotones() {
     const tabla = document.getElementById('tablaConciertos');
 
-    
     const existente = document.getElementById('paginacion');
     if (existente) existente.remove();
 
-    const totalPaginas = Math.ceil(datosGlobales.length / porPagina);
+    const totalPaginas = Math.ceil(conciertosGlobales.length / porPagina);
+
+    if (totalPaginas <= 1) return;
 
     const div = document.createElement('div');
     div.id = 'paginacion';
@@ -111,7 +127,7 @@ function renderBotones() {
 
     div.innerHTML = `
         <button id="anterior">⬅ Anterior</button>
-        <span style="margin: 0 10px;"> Página ${pagina} de ${totalPaginas} </span>
+        <span style="margin: 0 10px;">Página ${pagina} de ${totalPaginas}</span>
         <button id="siguiente">Siguiente ➡</button>
     `;
 
@@ -125,53 +141,34 @@ function renderBotones() {
     };
 
     document.getElementById('siguiente').onclick = () => {
-        if (pagina * porPagina < datosGlobales.length) {
+        if (pagina < totalPaginas) {
             pagina++;
             renderizarPagina();
         }
     };
 }
 
-
-
-
-async function pintarConciertos(artistas) {
+function pintarConciertos(conciertos) {
     const contenedor = document.getElementById('tablaConciertos');
 
-    for (const artista of artistas) {
+    if (conciertos.length === 0) {
+        contenedor.innerHTML = '<tr><td colspan="4">No hay conciertos para mostrar</td></tr>';
+        return;
+    }
 
-        if (!artista.conciertos_ids || artista.conciertos_ids.length === 0) continue;
+    for (const concierto of conciertos) {
+        const tr = document.createElement('tr');
 
-        for (const concierto_id of artista.conciertos_ids) {
+        tr.innerHTML = `
+            <td>${concierto.id}</td>
+            <td>${concierto.fecha}</td>
+            <td>${concierto.nombreVenue}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${concierto.id}">Editar</button>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${concierto.id}">Eliminar</button>
+            </td>
+        `;
 
-            try {
-                const conciertoRes = await fetch(`http://127.0.0.1:8000/v1/concierto/${concierto_id}`);
-                if (!conciertoRes.ok) throw new Error();
-
-                const concierto = await conciertoRes.json();
-
-                const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
-                if (!venueRes.ok) throw new Error();
-
-                const venue = await venueRes.json();
-
-                const tr = document.createElement('tr');
-
-                tr.innerHTML = `
-                    <td>${concierto.id}</td>
-                    <td>${concierto.fecha}</td>
-                    <td>${venue.nombreVenue}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${concierto.id}">Editar</button>
-                        <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${concierto.id}">Eliminar</button>
-                    </td>
-                `;
-
-                contenedor.appendChild(tr);
-
-            } catch {
-                console.error("Error cargando concierto o venue");
-            }
-        }
+        contenedor.appendChild(tr);
     }
 }

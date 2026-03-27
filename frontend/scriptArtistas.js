@@ -7,7 +7,6 @@ window.onload = async function () {
 
     try {
         const datosGuardados = localStorage.getItem('artistas');
-
         let artistas;
 
         if (datosGuardados) {
@@ -46,7 +45,6 @@ window.onload = async function () {
                         alert("Artista eliminado correctamente");
 
                         localStorage.removeItem('artistas');
-
                         location.reload();
                     } else {
                         throw new Error();

@@ -99,7 +99,7 @@
                 <li class="nav-item"><a class="nav-link" href="estadisticas.html">Estadísticas</a></li>
             </ul>
 
-            <button class="btn btn-outline-light ms-lg-3">Dark mode</button>
+            <button class="btn btn-outline-light ms-lg-3" id="themeToggle">Dark mode</button>
         </div>
     </div>
 </nav>
@@ -173,6 +173,30 @@
         </p>
     </div>
 </div>
+
+<script>
+    // Lógica para alternar Dark Mode
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Verificar si ya existe una preferencia guardada
+    if (localStorage.getItem('theme') === 'dark') {
+        body.classList.add('dark-mode');
+        themeToggle.innerText = 'Light mode';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+            themeToggle.innerText = 'Light mode';
+        } else {
+            localStorage.setItem('theme', 'light');
+            themeToggle.innerText = 'Dark mode';
+        }
+    });
+</script>
 
 <script src="scriptNuevoArtista.js"></script>
 

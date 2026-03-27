@@ -23,6 +23,8 @@ window.onload = async function () {
 
             const id = boton.getAttribute('data-id');
 
+            if (e.target.classList.contains('btn-editar')) {
+                window.location.href = `editarConciertos.html?id=${id}`;
             if (boton.classList.contains('btn-editar')) {
                 window.location.href = `editarConcierto.html?id=${id}`;
             }

@@ -1,163 +1,58 @@
-let pagina = 1;
-const porPagina = 5;
-let conciertosGlobales = [];
+const API_BASE = 'http://127.0.0.1:8000/v1';
 
-window.onload = async function () {
-    const contenedor = document.getElementById('tablaConciertos');
+const formConcierto = document.getElementById('formConcierto');
 
-    try {
-        const res = await fetch('http://127.0.0.1:8000/v1/conciertos');
+formConcierto.addEventListener('submit', crearConcierto);
 
-        if (!res.ok) {
-            throw new Error('Error al cargar conciertos');
-        }
+async function crearConcierto(e) {
+    e.preventDefault();
 
-        const conciertos = await res.json();
-        conciertosGlobales = await construirListaConciertos(conciertos);
+    const venueId = document.getElementById('venue_id').value.trim();
+    const fecha = document.getElementById('fecha').value.trim();
+    const costoTexto = document.getElementById('costoBoleto').value.trim();
 
-        renderizarPagina();
-
-        contenedor.addEventListener('click', async function (e) {
-            const boton = e.target.closest('button');
-            if (!boton) return;
-
-            const id = boton.getAttribute('data-id');
-
-            if (boton.classList.contains('btn-editar')) {
-                window.location.href = `editarConcierto.html?id=${id}`;
-            }
-
-            else if (boton.classList.contains('btn-eliminar')) {
-                if (!confirm("¿Seguro que quieres eliminar este concierto?")) return;
-
-                try {
-                    const resEliminar = await fetch(`http://127.0.0.1:8000/v1/concierto/${id}`, {
-                        method: "DELETE"
-                    });
-
-                    if (!resEliminar.ok) {
-                        throw new Error("No se pudo eliminar el concierto");
-                    }
-
-                    alert("Concierto eliminado correctamente");
-
-                    conciertosGlobales = conciertosGlobales.filter(concierto => concierto.id !== id);
-
-                    const totalPaginas = Math.ceil(conciertosGlobales.length / porPagina);
-                    if (pagina > totalPaginas && totalPaginas > 0) {
-                        pagina = totalPaginas;
-                    }
-
-                    renderizarPagina();
-
-                } catch (error) {
-                    alert("Error al eliminar el concierto");
-                    console.error(error);
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error(error);
-        contenedor.innerHTML = '<tr><td colspan="4">Error al cargar conciertos</td></tr>';
-    }
-};
-
-async function construirListaConciertos(conciertos) {
-    const listaConciertos = [];
-
-    for (const concierto of conciertos) {
-        try {
-            const venueRes = await fetch(`http://127.0.0.1:8000/v1/venue/${concierto.venue_id}`);
-            if (!venueRes.ok) throw new Error("Error al cargar venue");
-
-            const venue = await venueRes.json();
-
-            listaConciertos.push({
-                id: concierto.id,
-                fecha: concierto.fecha,
-                nombreVenue: venue.nombreVenue
-            });
-
-        } catch (error) {
-            console.error("Error cargando venue:", error);
-        }
-    }
-
-    return listaConciertos;
-}
-
-function renderizarPagina() {
-    const contenedor = document.getElementById('tablaConciertos');
-    contenedor.innerHTML = '';
-
-    const inicio = (pagina - 1) * porPagina;
-    const fin = inicio + porPagina;
-
-    const datosPaginados = conciertosGlobales.slice(inicio, fin);
-
-    pintarConciertos(datosPaginados);
-    renderBotones();
-}
-
-function renderBotones() {
-    const tabla = document.getElementById('tablaConciertos');
-
-    const existente = document.getElementById('paginacion');
-    if (existente) existente.remove();
-
-    const totalPaginas = Math.ceil(conciertosGlobales.length / porPagina);
-
-    if (totalPaginas <= 1) return;
-
-    const div = document.createElement('div');
-    div.id = 'paginacion';
-    div.style.marginTop = "20px";
-
-    div.innerHTML = `
-        <button id="anterior">⬅ Anterior</button>
-        <span style="margin: 0 10px;">Página ${pagina} de ${totalPaginas}</span>
-        <button id="siguiente">Siguiente ➡</button>
-    `;
-
-    tabla.parentNode.appendChild(div);
-
-    document.getElementById('anterior').onclick = () => {
-        if (pagina > 1) {
-            pagina--;
-            renderizarPagina();
-        }
-    };
-
-    document.getElementById('siguiente').onclick = () => {
-        if (pagina < totalPaginas) {
-            pagina++;
-            renderizarPagina();
-        }
-    };
-}
-
-function pintarConciertos(conciertos) {
-    const contenedor = document.getElementById('tablaConciertos');
-
-    if (conciertos.length === 0) {
-        contenedor.innerHTML = '<tr><td colspan="4">No hay conciertos para mostrar</td></tr>';
+    if (fecha === '' || costoTexto === '') {
+        alert('Fecha y costo del boleto son obligatorios.');
         return;
     }
 
-    for (const concierto of conciertos) {
-        const tr = document.createElement('tr');
+    const costoBoleto = parseInt(costoTexto);
 
-        tr.innerHTML = `
-            <td>${concierto.id}</td>
-            <td>${concierto.fecha}</td>
-            <td>${concierto.nombreVenue}</td>
-            <td>
-                <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${concierto.id}">Editar</button>
-                <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${concierto.id}">Eliminar</button>
-            </td>
-        `;
-
-        contenedor.appendChild(tr);
+    if (Number.isNaN(costoBoleto) || costoBoleto < 0) {
+        alert('El costo del boleto debe ser un número válido.');
+        return;
     }
+
+    const nuevoConcierto = {
+        fecha: fecha,
+        costoBoleto: costoBoleto
+    };
+
+    if (venueId !== '') {
+        nuevoConcierto.venue_id = venueId;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/concierto`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevoConcierto)
+        });
+
+        const texto = await res.text();
+
+        if (!res.ok) {
+            throw new Error(`Error ${res.status}: ${texto}`);
+        }
+
+        alert('Concierto creado correctamente');
+        window.location.href = 'conciertos.html?creado=1';
+
+    } catch (error) {
+        console.error(error);
+        alert(error.message);
+    }
+
 }
